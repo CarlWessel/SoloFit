@@ -1,28 +1,25 @@
-{
-  "chest_triceps": [
+[
     { "id": 1, "name": "Push-Up" },
     { "id": 2, "name": "Bench Press" },
     { "id": 3, "name": "Incline Dumbbell Press" },
     { "id": 4, "name": "Chest Fly" },
     { "id": 5, "name": "Tricep Dips" },
     { "id": 6, "name": "Overhead Tricep Extension" },
-    { "id": 7, "name": "Close-Grip Bench Press" }
-  ],
-  "back_biceps": [
+    { "id": 7, "name": "Close-Grip Bench Press" },
+
     { "id": 8, "name": "Pull-Up" },
     { "id": 9, "name": "Lat Pulldown" },
     { "id": 10, "name": "Barbell Row" },
     { "id": 11, "name": "Seated Cable Row" },
     { "id": 12, "name": "Dumbbell Bicep Curl" },
     { "id": 13, "name": "Hammer Curl" },
-    { "id": 14, "name": "Chin-Up" }
-  ],
-  "legs_calves": [
+    { "id": 14, "name": "Chin-Up" },
+
     { "id": 15, "name": "Squat" },
     { "id": 16, "name": "Lunge" },
     { "id": 17, "name": "Leg Press" },
     { "id": 18, "name": "Romanian Deadlift" },
     { "id": 19, "name": "Calf Raise" },
     { "id": 20, "name": "Bulgarian Split Squat" }
-  ]
-}
+
+]

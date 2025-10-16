@@ -4,7 +4,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { styles } from '../styles';
 
 export default function HomePage({ navigation }) {
-  console.log('NAVIGATION:', navigation);
 
   const showAlert = (text) => {
     Alert.alert("SoloFit", text);
