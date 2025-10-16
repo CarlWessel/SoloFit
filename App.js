@@ -6,6 +6,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 // Page Imports
 import HomePage from './Pages/HomePage';
 import AddWorkout from './Pages/AddWorkout';
+import AddExercises from './Pages/AddExercises';
 
 const Stack = createNativeStackNavigator();
 
@@ -19,6 +20,7 @@ export default function App() {
       >
         <Stack.Screen name="Home" component={HomePage} />
         <Stack.Screen name="AddWorkout" component={AddWorkout} />
+        <Stack.Screen name="AddExercises" component={AddExercises} />
       </Stack.Navigator>
     </NavigationContainer>
   );
