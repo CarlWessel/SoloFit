@@ -1,26 +1,25 @@
+import * as React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Button, Alert } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+// Page Imports
+import HomePage from './Pages/HomePage';
+import AddWorkout from './Pages/AddWorkout';
+
+const Stack = createNativeStackNavigator();
 
 export default function App() {
-
-  const showAlert = () => {
-    Alert.alert("SoloFit", "Let's get started!");
-  };
-
   return (
-    <View style={styles.container}>
-      <Text>SoloFit</Text>
-      <Button title='SoloFit Start' onPress={showAlert} ></Button>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <StatusBar style="light" />
+      <Stack.Navigator
+        initialRouteName="Home"
+        screenOptions={{ headerShown: false }}
+      >
+        <Stack.Screen name="Home" component={HomePage} />
+        <Stack.Screen name="AddWorkout" component={AddWorkout} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

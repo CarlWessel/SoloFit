@@ -1,8 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Alert, TouchableOpacity } from 'react-native';
+import { Text, View, Alert, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { styles } from '../styles';
 
-export default function App() {
+export default function HomePage({ navigation }) {
+  console.log('NAVIGATION:', navigation);
 
   const showAlert = (text) => {
     Alert.alert("SoloFit", text);
@@ -16,7 +18,7 @@ export default function App() {
       </View>
 
       <View style={styles.main}>
-        <TouchableOpacity style={styles.startButton} onPress={() => showAlert("Adding workout")}>
+        <TouchableOpacity style={styles.startButton} onPress={() => navigation.navigate('AddWorkout')}>
           <Text style={styles.startText}>Add Workout</Text>
         </TouchableOpacity>
       </View>
@@ -42,47 +44,3 @@ export default function App() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#023047',
-  },
-  header: {
-    paddingTop: 60,
-    paddingBottom: 20,
-    backgroundColor: '#219ebc',
-    alignItems: 'center',
-  },
-  headerText: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#ffb703'
-  },
-  main: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  startButton: {
-    backgroundColor: '#ffb703',
-    padding: 15,
-    borderRadius: 10,
-  },
-  startText: {
-    color: '#fff',
-    fontSize: 18,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 15,
-    borderTopWidth: 1,
-    borderTopColor: '#ddd',
-    backgroundColor: '#219ebc'
-    
-  },
-  footerButton: {
-    alignItems: 'center'
-  },
-});
