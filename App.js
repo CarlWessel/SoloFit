@@ -1,13 +1,18 @@
 import React, { useEffect } from 'react';
+import { AppState } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { AppState } from 'react-native';
 
-// Page Imports
+// Utilities
+import { requestNotificationPermission, scheduleDailyReminders, recordAppOpened, testImmediateNotification } from './utils/notifications';
+import { DBSetup } from './utils/DBSetup';
+
+// Pages
 import HomePage from './Pages/HomePage';
 import AddWorkout from './Pages/AddWorkout';
-import { requestNotificationPermission, scheduleDailyReminders, recordAppOpened, testImmediateNotification } from './utils/notifications';
+import AddExercises from './Pages/AddExercises';
+import Example, { GPTShowEcercisesExample } from './Pages/GPTShowExercisesExample';
 
 const Stack = createNativeStackNavigator();
 
@@ -36,6 +41,11 @@ export default function App() {
     return () => subscription.remove();
   }, []);
 
+  // Initialize the database
+  useEffect(() => {
+      DBSetup();
+  }, []);
+
   return (
     <NavigationContainer>
       <StatusBar style="light" />
@@ -45,6 +55,8 @@ export default function App() {
       >
         <Stack.Screen name="Home" component={HomePage} />
         <Stack.Screen name="AddWorkout" component={AddWorkout} />
+        <Stack.Screen name="AddExercises" component={AddExercises} />
+        <Stack.Screen name="GPTShowExercisesExample" component={Example} />
       </Stack.Navigator>
     </NavigationContainer>
   );

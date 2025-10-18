@@ -15,6 +15,12 @@ export default function AddWorkout({ navigation }) {
       >
         <Text style={styles.startText}>Go Back</Text>
       </TouchableOpacity>
+      <TouchableOpacity style={styles.startButton} onPress={() => navigation.navigate('AddExercises')}>
+          <Text style={styles.startText}>Add Exercises</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.startButton} onPress={() => navigation.navigate('GPTShowExercisesExample')}>
+          <Text style={styles.startText}>See Example</Text>
+      </TouchableOpacity>
     </View>
   );
 }
