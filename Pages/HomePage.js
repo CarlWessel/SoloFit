@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { Text, View, Alert, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { styles } from '../styles';
 
 export default function HomePage({ navigation }) {
@@ -24,17 +24,17 @@ export default function HomePage({ navigation }) {
 
       <View style={styles.footer}>
         <TouchableOpacity style={styles.footerButton} onPress={() => showAlert("Display profile")}>
-          <Ionicons name="square-outline" size={28} color="black" />
+          <MaterialIcons name="person-outline" size={28} color="black" />
           <Text>Profile</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.footerButton} onPress={() => showAlert("Add workout")}>
-          <Ionicons name="star-outline" size={28} color="black" />
+          <MaterialIcons name="add-circle-outline" size={28} color="black" />
           <Text>Add</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.footerButton} onPress={() => showAlert("View existing workouts")}>
-          <Ionicons name="square-outline" size={28} color="black" />
+          <MaterialIcons name="fitness-center" size={28} color="black" />
           <Text>Workouts</Text>
         </TouchableOpacity>
       </View>

@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { styles, colors } from '../styles';
-import { AddExercises } from './AddExercises';
 
 export default function AddWorkout({ navigation }) {
   return (
@@ -18,6 +17,9 @@ export default function AddWorkout({ navigation }) {
       </TouchableOpacity>
       <TouchableOpacity style={styles.startButton} onPress={() => navigation.navigate('AddExercises')}>
           <Text style={styles.startText}>Add Exercises</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.startButton} onPress={() => navigation.navigate('GPTShowExercisesExample')}>
+          <Text style={styles.startText}>See Example</Text>
       </TouchableOpacity>
     </View>
   );
