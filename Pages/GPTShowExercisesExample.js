@@ -103,7 +103,7 @@ export default function Example({ navigation }) {
         style={[styles.startButton, { marginTop: 10 }]}
         onPress={() => navigation.goBack()}
       >
-        <Text style={styles.startText}>Go Back</Text>
+        <Text style={styles.text}>Go Back</Text>
       </TouchableOpacity>
 
       {/* Add Exercise Modal */}

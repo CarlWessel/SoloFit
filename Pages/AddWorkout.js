@@ -13,13 +13,13 @@ export default function AddWorkout({ navigation }) {
         style={[styles.startButton, { backgroundColor: colors.accent }]}
         onPress={() => navigation.goBack()}
       >
-        <Text style={styles.startText}>Go Back</Text>
+        <Text style={styles.text}>Go Back</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.startButton} onPress={() => navigation.navigate('AddExercises')}>
-          <Text style={styles.startText}>Add Exercises</Text>
+          <Text style={styles.text}>Add Exercises</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.startButton} onPress={() => navigation.navigate('GPTShowExercisesExample')}>
-          <Text style={styles.startText}>See Example</Text>
+          <Text style={styles.text}>See Example</Text>
       </TouchableOpacity>
     </View>
   );
