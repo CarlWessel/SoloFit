@@ -1,0 +1,61 @@
+[
+  {
+    "workoutId": 1,
+    "name": "Upper Body Strength",
+    "exercises": [
+      { "exerciseId": 1, "Sets": [{ "reps": 10, "weight": 150 }, { "reps": 10, "weight": 150 }, { "reps": 10, "weight": 150 }] },
+      { "exerciseId": 2, "Sets": [{ "reps": 8, "weight": 90 }, { "reps": 8, "weight": 90 }, { "reps": 8, "weight": 90 }, { "reps": 8, "weight": 90 }] },
+      { "exerciseId": 3, "Sets": [{ "reps": 12, "weight": 50 }, { "reps": 12, "weight": 50 }, { "reps": 12, "weight": 50 }] },
+      { "exerciseId": 4, "Sets": [{ "reps": 10, "weight": 90 }, { "reps": 10, "weight": 90 }, { "reps": 10, "weight": 90 }] },
+      { "exerciseId": 5, "Sets": [{ "reps": 8, "weight": 150 }, { "reps": 8, "weight": 150 }, { "reps": 8, "weight": 150 }, { "reps": 8, "weight": 150 }] },
+      { "exerciseId": 6, "Sets": [{ "reps": 12, "weight": 35 }, { "reps": 12, "weight": 35 }, { "reps": 12, "weight": 35 }] },
+      { "exerciseId": 7, "Sets": [{ "reps": 10, "weight": 90 }, { "reps": 10, "weight": 90 }, { "reps": 10, "weight": 90 }] }
+    ]
+  },
+  {
+    "workoutId": 2,
+    "name": "Pull Day",
+    "exercises": [
+      { "exerciseId": 8, "Sets": [{ "reps": 8, "weight": 150 }, { "reps": 8, "weight": 150 }, { "reps": 8, "weight": 150 }, { "reps": 8, "weight": 150 }] },
+      { "exerciseId": 9, "Sets": [{ "reps": 10, "weight": 90 }, { "reps": 10, "weight": 90 }, { "reps": 10, "weight": 90 }, { "reps": 10, "weight": 90 }] },
+      { "exerciseId": 10, "Sets": [{ "reps": 12, "weight": 75 }, { "reps": 12, "weight": 75 }, { "reps": 12, "weight": 75 }] },
+      { "exerciseId": 11, "Sets": [{ "reps": 10, "weight": 90 }, { "reps": 10, "weight": 90 }, { "reps": 10, "weight": 90 }] },
+      { "exerciseId": 12, "Sets": [{ "reps": 8, "weight": 30 }, { "reps": 8, "weight": 30 }, { "reps": 8, "weight": 30 }, { "reps": 8, "weight": 30 }] },
+      { "exerciseId": 13, "Sets": [{ "reps": 12, "weight": 30 }, { "reps": 12, "weight": 30 }, { "reps": 12, "weight": 30 }] },
+      { "exerciseId": 14, "Sets": [{ "reps": 10, "weight": 150 }, { "reps": 10, "weight": 150 }, { "reps": 10, "weight": 150 }] }
+    ]
+  },
+  {
+    "workoutId": 3,
+    "name": "Leg Day",
+    "exercises": [
+      { "exerciseId": 15, "Sets": [{ "reps": 10, "weight": 135 }, { "reps": 10, "weight": 135 }, { "reps": 10, "weight": 135 }, { "reps": 10, "weight": 135 }] },
+      { "exerciseId": 16, "Sets": [{ "reps": 8, "weight": 35 }, { "reps": 8, "weight": 35 }, { "reps": 8, "weight": 35 }, { "reps": 8, "weight": 35 }] },
+      { "exerciseId": 17, "Sets": [{ "reps": 12, "weight": 225 }, { "reps": 12, "weight": 225 }, { "reps": 12, "weight": 225 }] },
+      { "exerciseId": 18, "Sets": [{ "reps": 10, "weight": 90 }, { "reps": 10, "weight": 90 }, { "reps": 10, "weight": 90 }] },
+      { "exerciseId": 19, "Sets": [{ "reps": 8, "weight": 105 }, { "reps": 8, "weight": 105 }, { "reps": 8, "weight": 105 }, { "reps": 8, "weight": 105 }] },
+      { "exerciseId": 20, "Sets": [{ "reps": 12, "weight": 35 }, { "reps": 12, "weight": 35 }, { "reps": 12, "weight": 35 }] }
+    ]
+  },
+  {
+    "workoutId": 4,
+    "name": "Full Body Workout",
+    "exercises": [
+      { "exerciseId": 1, "Sets": [{ "reps": 10, "weight": 150 }, { "reps": 10, "weight": 150 }, { "reps": 10, "weight": 150 }] },
+      { "exerciseId": 8, "Sets": [{ "reps": 10, "weight": 150 }, { "reps": 10, "weight": 150 }, { "reps": 10, "weight": 150 }] },
+      { "exerciseId": 15, "Sets": [{ "reps": 10, "weight": 225 }, { "reps": 10, "weight": 225 }, { "reps": 10, "weight": 225 }] },
+      { "exerciseId": 2, "Sets": [{ "reps": 12, "weight": 90 }, { "reps": 12, "weight": 90 }, { "reps": 12, "weight": 90 }] },
+      { "exerciseId": 9, "Sets": [{ "reps": 8, "weight": 90 }, { "reps": 8, "weight": 90 }, { "reps": 8, "weight": 90 }, { "reps": 8, "weight": 90 }] },
+      { "exerciseId": 16, "Sets": [{ "reps": 12, "weight": 35 }, { "reps": 12, "weight": 35 }, { "reps": 12, "weight": 35 }] }
+    ]
+  },
+  {
+    "workoutId": 5,
+    "name": "Cardio",
+    "exercises": [
+      { "exerciseId": 21, "Sets": [{ "reps": 30, "weight": 0 }] },
+      { "exerciseId": 22, "Sets": [{ "reps": 20, "weight": 0 }] },
+      { "exerciseId": 23, "Sets": [{ "reps": 15, "weight": 0 }] }
+    ]
+  }
+]
