@@ -12,6 +12,7 @@ import { DBSetup } from './utils/DBSetup';
 import HomePage from './Pages/HomePage';
 import AddWorkout from './Pages/AddWorkout';
 import AddExercises from './Pages/AddExercises';
+import WorkoutList from './Pages/WorkoutList';
 import Example, { GPTShowEcercisesExample } from './Pages/GPTShowExercisesExample';
 
 const Stack = createNativeStackNavigator();
@@ -56,6 +57,7 @@ export default function App() {
         <Stack.Screen name="Home" component={HomePage} />
         <Stack.Screen name="AddWorkout" component={AddWorkout} />
         <Stack.Screen name="AddExercises" component={AddExercises} />
+        <Stack.Screen name="WorkoutList" component={WorkoutList} />
         <Stack.Screen name="GPTShowExercisesExample" component={Example} />
       </Stack.Navigator>
     </NavigationContainer>

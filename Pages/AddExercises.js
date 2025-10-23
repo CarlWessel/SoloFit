@@ -24,7 +24,7 @@ export default function AddExercises({ navigation }){
         style={[styles.startButton]}
         onPress={() => navigation.goBack()}
       >
-        <Text style={styles.startText}>Go Back</Text>
+        <Text style={styles.text}>Go Back</Text>
       </TouchableOpacity>
     </View>
   );
