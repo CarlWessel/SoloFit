@@ -1,6 +1,6 @@
 import { openDatabaseAsync } from 'expo-sqlite';
 import exercises from '../data/exercises.json';
-import preMadeWorkouts from '../data/PreMadeWorkouts.json';
+import preMadeRoutines from '../data/PreMadeRoutines.json';
 
 export async function DBSetup() {
   const db = await openDatabaseAsync('workout.db');
@@ -14,20 +14,20 @@ export async function DBSetup() {
   `);
 
   await db.execAsync(`
-    CREATE TABLE IF NOT EXISTS workouts (
+    CREATE TABLE IF NOT EXISTS routines (
       id INTEGER PRIMARY KEY NOT NULL,
       name TEXT NOT NULL
     );
   `);
 
   await db.execAsync(`
-    CREATE TABLE IF NOT EXISTS workout_exercises (
-      workoutId INTEGER NOT NULL,
+    CREATE TABLE IF NOT EXISTS routine_exercises (
+      routineId INTEGER NOT NULL,
       exerciseId INTEGER NOT NULL,
       sets INTEGER NOT NULL,
       reps INTEGER NOT NULL,
       weight REAL NOT NULL,
-      FOREIGN KEY (workoutId) REFERENCES workouts(id),
+      FOREIGN KEY (routineId) REFERENCES routines(id),
       FOREIGN KEY (exerciseId) REFERENCES exercises(id)
     );
   `);
@@ -46,22 +46,22 @@ export async function DBSetup() {
     }
   }
 
-  // Insert premade workouts if empty
+  // Insert premade routines if empty
   const [{ count: wCount }] = await db.getAllAsync(
-    'SELECT COUNT(*) as count FROM workouts;'
+    'SELECT COUNT(*) as count FROM routines;'
   );
 
   if (wCount === 0) {
-    for (const workout of preMadeWorkouts) {
-      await db.runAsync('INSERT INTO workouts (id, name) VALUES (?, ?);', [
-        workout.workoutId,
-        workout.name,
+    for (const routine of preMadeRoutines) {
+      await db.runAsync('INSERT INTO routines (id, name) VALUES (?, ?);', [
+        routine.routineId,
+        routine.name,
       ]);
 
-      for (const ex of workout.exercises) {
+      for (const ex of routine.exercises) {
         await db.runAsync(
-          'INSERT INTO workout_exercises (workoutId, exerciseId, sets, reps, weight) VALUES (?, ?, ?, ?, ?);',
-          [workout.workoutId, ex.exerciseId, ex.sets, ex.reps, ex.weight]
+          'INSERT INTO routine_exercises (routineId, exerciseId, sets, reps, weight) VALUES (?, ?, ?, ?, ?);',
+          [routine.routineId, ex.exerciseId, ex.sets, ex.reps, ex.weight]
         );
       }
     }

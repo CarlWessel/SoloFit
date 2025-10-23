@@ -1,6 +1,6 @@
 [
   {
-    "workoutId": 1,
+    "routineId": 1,
     "name": "Upper Body Strength",
     "exercises": [
       { "exerciseId": 1, "sets": 3, "reps": 10, "weight": 150},
@@ -13,7 +13,7 @@
     ]
   },
   {
-    "workoutId": 2,
+    "routineId": 2,
     "name": "Pull Day",
     "exercises": [
       { "exerciseId": 8, "sets": 4, "reps": 8, "weight": 150 },
@@ -26,7 +26,7 @@
     ]
   },
   {
-    "workoutId": 3,
+    "routineId": 3,
     "name": "Leg Day",
     "exercises": [
       { "exerciseId": 15, "sets": 4, "reps": 10, "weight": 135 },
@@ -38,7 +38,7 @@
     ]
   },
   {
-    "workoutId": 4,
+    "routineId": 4,
     "name": "Full Body Workout",
     "exercises": [
       { "exerciseId": 1, "sets": 3, "reps": 10, "weight": 150 },
@@ -50,7 +50,7 @@
     ]
   },
     {
-        "workoutId": 5,
+        "routineId": 5,
         "name": "Cardio",
         "exercises": [
         { "exerciseId": 21, "sets": 1, "reps": 30, "weight": 0 },

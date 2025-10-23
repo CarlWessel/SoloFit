@@ -34,7 +34,8 @@ export default function HomePage({ navigation }) {
         </TouchableOpacity>
 
         {/* I suggest moving this list to the Profile page and placing the History on the Home page. The workout list is more like a settings feature and doesn’t change frequently, whereas the history is likely to be accessed more often. */}
-        <TouchableOpacity style={styles.footerButton} onPress={() => navigation.navigate('WorkoutList')}>
+        {/* <TouchableOpacity style={styles.footerButton} onPress={() => navigation.navigate('WorkoutHistory')}> */}
+        <TouchableOpacity style={styles.footerButton} onPress={() => navigation.navigate('RoutineList')}>
           <MaterialIcons name="fitness-center" size={28} color="black" />
           <Text>Workouts</Text>
         </TouchableOpacity>
