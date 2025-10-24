@@ -17,7 +17,10 @@ export default function HomePage({ navigation }) {
       </View>
 
       <View style={styles.main}>
-        <TouchableOpacity style={styles.startButton} onPress={() => navigation.navigate('AddWorkout')}>
+        {/* This Add Workout button should be for adding workout history
+        and Add/Edit Routine Page should go into the Addworkout page and anywhere else that can add/edit a routine
+        but I just keep it here for the moment */}
+        <TouchableOpacity style={styles.startButton} onPress={() => navigation.navigate('AddRoutine')}>
           <Text style={styles.text}>Add Workout</Text>
         </TouchableOpacity>
       </View>

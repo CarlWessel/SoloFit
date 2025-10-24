@@ -36,6 +36,7 @@ export default function RoutineList({ navigation }) {
 
   const editRoutine = (id) => {
     console.log(`Edit routine with id: ${id}`);
+    navigation.navigate('AddRoutine');
     // navigation.navigate('EditRoutine', { routineId: id });
     // the page should be almost the same as add routine, consider combine those two into EditRoutine 
     // and add a boolean to determine if it's add or edit
@@ -76,8 +77,7 @@ export default function RoutineList({ navigation }) {
           <MaterialIcons name="arrow-back-ios-new" style={styles.headerText}/>
         </TouchableOpacity>
         <Text style={styles.headerText}>Routine List</Text>
-        {/* <TouchableOpacity style={styles.headerRight} onPress={() => navigation.navigate('AddRoutine')}> */}
-        <TouchableOpacity style={styles.headerRight}>
+        <TouchableOpacity style={styles.headerRight} onPress={() => navigation.navigate('AddRoutine')}>
           <MaterialIcons name="add" style={[styles.headerText, {fontSize: 36}]}/>
         </TouchableOpacity>
       </View>
