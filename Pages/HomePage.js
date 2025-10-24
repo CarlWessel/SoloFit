@@ -13,12 +13,12 @@ export default function HomePage({ navigation }) {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerText}>❚█══𝑺𝒐𝒍𝒐★𝑭𝒊𝒕══█❚</Text>
-        <Text style={{fontSize: 28,fontWeight: 'bold',}}>ᕙ(  •̀ ᗜ •́  )ᕗ</Text>
+        <Text style={styles.headerText}>ᕙ(  •̀ ᗜ •́  )ᕗ</Text>
       </View>
 
       <View style={styles.main}>
         <TouchableOpacity style={styles.startButton} onPress={() => navigation.navigate('AddWorkout')}>
-          <Text style={styles.startText}>Add Workout</Text>
+          <Text style={styles.text}>Add Workout</Text>
         </TouchableOpacity>
       </View>
 
@@ -33,7 +33,9 @@ export default function HomePage({ navigation }) {
           <Text>Add</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.footerButton} onPress={() => showAlert("View existing workouts")}>
+        {/* I suggest moving this list to the Profile page and placing the History on the Home page. The workout list is more like a settings feature and doesn’t change frequently, whereas the history is likely to be accessed more often. */}
+        {/* <TouchableOpacity style={styles.footerButton} onPress={() => navigation.navigate('WorkoutHistory')}> */}
+        <TouchableOpacity style={styles.footerButton} onPress={() => navigation.navigate('RoutineList')}>
           <MaterialIcons name="fitness-center" size={28} color="black" />
           <Text>Workouts</Text>
         </TouchableOpacity>

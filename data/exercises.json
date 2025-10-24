@@ -20,6 +20,9 @@
     { "id": 17, "name": "Leg Press" },
     { "id": 18, "name": "Romanian Deadlift" },
     { "id": 19, "name": "Calf Raise" },
-    { "id": 20, "name": "Bulgarian Split Squat" }
+    { "id": 20, "name": "Bulgarian Split Squat" },
 
+    { "id": 21, "name": "TreadMill" },
+    { "id": 22, "name": "Stair Master" },
+    { "id": 23, "name": "Rope Swings" }
 ]

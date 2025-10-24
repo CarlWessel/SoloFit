@@ -1,15 +1,9 @@
-import React from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  TextInput,
-  ScrollView,
-  Alert,
-} from "react-native";
-import { styles, colors, spacing } from "../styles";
-import { useState } from "react";
-import { Picker } from "@react-native-picker/picker";
+import React from 'react';
+import { View, Text, TouchableOpacity, TextInput, ScrollView, Alert,} from "react-native";
+import { styles, colors, spacing } from '../styles';
+import { useState } from 'react';
+import { Picker } from '@react-native-picker/picker';
+
 export default function AddWorkout({ navigation }) {
   const showAlert = (text) => {
     Alert.alert("SoloFit", text);
@@ -159,7 +153,7 @@ export default function AddWorkout({ navigation }) {
               ]}
               onPress={() => onDelete(exercise.id)}
             >
-              <Text style={styles.startText}>Remove Exercise</Text>
+              <Text style={styles.text}>Remove Exercise</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={{
@@ -170,7 +164,7 @@ export default function AddWorkout({ navigation }) {
               }}
               onPress={() => addSetToExercise(exercise.id)}
             >
-              <Text style={styles.startText}>Add Set</Text>
+              <Text style={styles.text}>Add Set</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -289,13 +283,13 @@ export default function AddWorkout({ navigation }) {
           ]}
           onPress={() => navigation.goBack()}
         >
-          <Text style={styles.startText}>Go Back</Text>
+        <Text style={styles.text}>Go Back</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.startButton, {}]}
           onPress={addExercise}
         >
-          <Text style={styles.startText}>Add Exercise</Text>
+          <Text style={styles.text}>Add Exercise</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[
@@ -307,7 +301,7 @@ export default function AddWorkout({ navigation }) {
           ]}
           onPress={() => showAlert("Successfully Saved Workout")} //Will make this actually do something later
         >
-          <Text style={styles.startText}>Save Workout</Text>
+          <Text style={styles.text}>Save Workout</Text>
         </TouchableOpacity>
       </View>
     </View>
