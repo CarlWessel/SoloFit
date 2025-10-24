@@ -10,7 +10,7 @@ import { DBSetup } from './utils/DBSetup';
 
 // Pages
 import HomePage from './Pages/HomePage';
-import AddWorkout from './Pages/AddWorkout';
+import AddRoutine from './Pages/AddRoutine';
 import AddExercises from './Pages/AddExercises';
 import RoutineList from './Pages/RoutineList';
 import Example, { GPTShowEcercisesExample } from './Pages/GPTShowExercisesExample';
@@ -55,7 +55,7 @@ export default function App() {
         screenOptions={{ headerShown: false }}
       >
         <Stack.Screen name="Home" component={HomePage} />
-        <Stack.Screen name="AddWorkout" component={AddWorkout} />
+        <Stack.Screen name="AddRoutine" component={AddRoutine} />
         <Stack.Screen name="AddExercises" component={AddExercises} />
         <Stack.Screen name="RoutineList" component={RoutineList} />
         <Stack.Screen name="GPTShowExercisesExample" component={Example} />

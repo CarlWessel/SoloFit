@@ -4,12 +4,12 @@ import { styles, colors, spacing } from '../styles';
 import { useState } from 'react';
 import { Picker } from '@react-native-picker/picker';
 
-export default function AddWorkout({ navigation }) {
+export default function AddRoutine({ navigation }) {
   const showAlert = (text) => {
     Alert.alert("SoloFit", text);
   };
 
-  const [workout, setWorkout] = useState("");
+  const [routine, setRoutine] = useState("");
   const exercisesList = [
     { label: "Pushups", value: "pushups" },
     { label: "Bench Press", value: "benchpress" },
@@ -225,7 +225,7 @@ export default function AddWorkout({ navigation }) {
           ]}
         >
           <Text style={[styles.headerText, { fontSize: 24, marginBottom: 20 }]}>
-            Add Workout
+            Add Routine
           </Text>
         </View>
         <View
@@ -248,7 +248,7 @@ export default function AddWorkout({ navigation }) {
                 backgroundColor: colors.background,
               },
             ]}
-            placeholder="Workout Name"
+            placeholder="Routine Name"
             placeholderTextColor={colors.accent}
           />
         </View>
@@ -299,9 +299,9 @@ export default function AddWorkout({ navigation }) {
               width: "auto",
             },
           ]}
-          onPress={() => showAlert("Successfully Saved Workout")} //Will make this actually do something later
+          onPress={() => showAlert("Successfully Saved Routine")} //Will make this actually do something later
         >
-          <Text style={styles.text}>Save Workout</Text>
+          <Text style={styles.text}>Save Routine</Text>
         </TouchableOpacity>
       </View>
     </View>
