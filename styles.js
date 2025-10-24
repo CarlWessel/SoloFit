@@ -1,5 +1,5 @@
 // styles.js
-import { StyleSheet } from 'react-native';
+import { StyleSheet } from "react-native";
 
 export const colors = {
   background: '#023047',
@@ -120,4 +120,15 @@ export const styles = StyleSheet.create({
         borderRadius: 10,
         alignItems: 'center'
     },
+    textInput: {
+        flex: 1,
+        height: 40,
+        borderWidth: 1,
+        borderColor: colors.border,
+        borderRadius: 4,
+        marginHorizontal: 5,
+        paddingHorizontal: 8,
+        color: colors.accent,
+        backgroundColor: colors.background,
+  },
 });
