@@ -1,37 +1,46 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, TextInput, ScrollView, Alert,} from "react-native";
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, TextInput, ScrollView, Alert } from "react-native";
 import { styles, colors, spacing } from '../styles';
-import { useState } from 'react';
 import { Picker } from '@react-native-picker/picker';
+import { openDatabaseAsync } from 'expo-sqlite';
 
 export default function AddRoutine({ navigation }) {
-  const showAlert = (text) => {
-    Alert.alert("SoloFit", text);
-  };
-
-  const [routine, setRoutine] = useState("");
-  const exercisesList = [
-    { label: "Pushups", value: "pushups" },
-    { label: "Bench Press", value: "benchpress" },
-    { label: "Tricep Dips", value: "tricepdips" },
-    { label: "Chest Fly", value: "chestfly" },
-  ];
-
-  //for actually adding stuff
+  const [routineName, setRoutineName] = useState("");
   const [exercises, setExercises] = useState([]);
   const [nextExerciseID, setNextExerciseID] = useState(1);
+  const [exercisesList, setExercisesList] = useState([]);
 
-  function addExercise() {
-    let newExercise = {
+  useEffect(() => {
+    loadExercises();
+  }, []);
+
+  const loadExercises = async () => {
+    try {
+      const db = await openDatabaseAsync('workout.db');
+      const rows = await db.getAllAsync('SELECT * FROM exercises;');
+      setExercisesList(rows.map(ex => ({ label: ex.name, value: ex.id })));
+    } catch (error) {
+      console.error('Error loading exercises:', error);
+    }
+  };
+
+  const addExercise = () => {
+    if (exercisesList.length === 0) {
+      Alert.alert('Error', 'No exercises available');
+      return;
+    }
+
+    const newExercise = {
       id: nextExerciseID,
-      exerciseName: exercisesList[0]?.value || "",
-      sets: [{ id: 1, reps: "", weight: "" }],
+      exerciseId: exercisesList[0]?.value || 1,
+      exerciseName: exercisesList[0]?.label || '',
+      sets: [{ id: 1, reps: '', weight: '' }],
     };
     setNextExerciseID(nextExerciseID + 1);
-
     setExercises((prev) => [...prev, newExercise]);
-  }
-  function addSetToExercise(exerciseId) {
+  };
+
+  const addSetToExercise = (exerciseId) => {
     setExercises((prev) =>
       prev.map((ex) =>
         ex.id === exerciseId
@@ -39,14 +48,15 @@ export default function AddRoutine({ navigation }) {
               ...ex,
               sets: [
                 ...ex.sets,
-                { id: ex.sets.length + 1, reps: "", weight: "" },
+                { id: ex.sets.length + 1, reps: '', weight: '' },
               ],
             }
           : ex
       )
     );
-  }
-  function updateSetValue(exerciseId, setId, key, value) {
+  };
+
+  const updateSetValue = (exerciseId, setId, key, value) => {
     setExercises((prev) =>
       prev.map((ex) =>
         ex.id !== exerciseId
@@ -59,158 +69,200 @@ export default function AddRoutine({ navigation }) {
             }
       )
     );
-  }
-  function removeExercise(id) {
+  };
+
+  const removeExercise = (id) => {
     setExercises((prev) => prev.filter((ex) => ex.id !== id));
-  }
+  };
 
-  function onTextChanged(id, key, value) {
+  const onExerciseChanged = (id, exerciseId) => {
+    const selectedExercise = exercisesList.find(ex => ex.value === exerciseId);
     setExercises((prev) =>
-      prev.map((ex) => (ex.id === id ? { ...ex, [key]: value } : ex))
+      prev.map((ex) => (ex.id === id ? { ...ex, exerciseId, exerciseName: selectedExercise?.label || '' } : ex))
     );
-  }
+  };
 
-  //Rendering stuff
-  function RenderNewExerciseForm({
-    exercise,
-    onTextChanged,
-    onDelete,
-    onAddSet,
-    onSetValueChange,
+  const saveRoutine = async () => {
+    if (!routineName.trim()) {
+      Alert.alert('Error', 'Please enter a routine name');
+      return;
+    }
 
-    exercisesList,
-  }) {
-    return (
-      <View style={{ paddingTop: 10 }}>
+    if (exercises.length === 0) {
+      Alert.alert('Error', 'Please add at least one exercise');
+      return;
+    }
+
+    // Validate that all exercises have at least one complete set
+    const hasIncompleteSets = exercises.some(ex => 
+      ex.sets.every(set => !set.reps || !set.weight)
+    );
+
+    if (hasIncompleteSets) {
+      Alert.alert('Error', 'Each exercise must have at least one complete set with reps and weight');
+      return;
+    }
+
+    try {
+      const db = await openDatabaseAsync('workout.db');
+      
+      // Insert the routine
+      const result = await db.runAsync(
+        'INSERT INTO routines (name) VALUES (?);',
+        [routineName.trim()]
+      );
+
+      const routineId = result.lastInsertRowId;
+
+      // Insert exercises for this routine
+      for (const ex of exercises) {
+        // Calculate total sets (only count sets with both reps and weight filled)
+        const completeSets = ex.sets.filter(set => set.reps && set.weight);
+        
+        if (completeSets.length > 0) {
+          // Take the first complete set's values
+          const firstSet = completeSets[0];
+          
+          await db.runAsync(
+            'INSERT INTO routine_exercises (routineId, exerciseId, sets, reps, weight) VALUES (?, ?, ?, ?, ?);',
+            [routineId, ex.exerciseId, completeSets.length, parseInt(firstSet.reps), parseFloat(firstSet.weight)]
+          );
+        }
+      }
+
+      Alert.alert('Success', 'Routine saved successfully!', [
+        { text: 'OK', onPress: () => navigation.goBack() }
+      ]);
+    } catch (error) {
+      console.error('Error saving routine:', error);
+      Alert.alert('Error', 'Failed to save routine');
+    }
+  };
+
+  const RenderNewExerciseForm = ({ exercise }) => (
+    <View style={{ paddingTop: 10 }}>
+      <View
+        style={{
+          borderWidth: 1,
+          borderColor: colors.border,
+          borderRadius: 8,
+          padding: 6,
+          margin: 10,
+          backgroundColor: colors.primary,
+        }}
+      >
         <View
           style={{
+            flex: 1,
             borderWidth: 1,
             borderColor: colors.border,
-            borderRadius: 8,
-            padding: 6,
-            margin: 10,
-            backgroundColor: colors.primary,
+            borderRadius: 1,
+            backgroundColor: colors.background,
+            height: 40,
+            justifyContent: "center",
           }}
         >
-          <View
-            style={{
-              flex: 1,
-              borderWidth: 1,
-              borderColor: colors.border,
-              borderRadius: 1,
-              backgroundColor: colors.background,
-              height: 40,
-              justifyContent: "center",
-            }}
+          <Picker
+            selectedValue={exercise.exerciseId}
+            onValueChange={(value) => onExerciseChanged(exercise.id, value)}
+            style={{ fontSize: 16, color: colors.accent, width: "100%" }}
+            dropdownIconColor={colors.accent}
           >
-            <Picker
-              selectedValue={exercise.exerciseName}
-              onValueChange={(value) =>
-                onTextChanged(exercise.id, "exerciseName", value)
-              }
-              style={{ fontSize: 16, color: colors.accent, width: "100%" }}
-              dropdownIconColor={colors.accent}
-            >
-              {exercisesList.map((exercise) => (
-                <Picker.Item
-                  key={exercise.value}
-                  label={exercise.label}
-                  value={exercise.value}
-                />
-              ))}
-            </Picker>
-          </View>
-        </View>
-        <View
-          style={{
-            alignItems: "center",
-            borderWidth: 1,
-            borderColor: colors.border,
-            borderRadius: 8,
-            padding: 10,
-            margin: 10,
-            backgroundColor: colors.primary,
-          }}
-        >
-          <RenderSets exercise={exercise} onSetChange={updateSetValue} />
-
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-around",
-              padding: 10,
-            }}
-          >
-            <TouchableOpacity
-              style={[
-                {
-                  backgroundColor: colors.accent,
-                  marginTop: 10,
-                  padding: spacing.sm,
-                  borderRadius: 10,
-                  marginRight: 15,
-                },
-              ]}
-              onPress={() => onDelete(exercise.id)}
-            >
-              <Text style={styles.text}>Remove Exercise</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={{
-                backgroundColor: colors.accent,
-                padding: spacing.sm,
-                borderRadius: 10,
-                marginTop: 10,
-              }}
-              onPress={() => addSetToExercise(exercise.id)}
-            >
-              <Text style={styles.text}>Add Set</Text>
-            </TouchableOpacity>
-          </View>
+            {exercisesList.map((ex) => (
+              <Picker.Item
+                key={ex.value}
+                label={ex.label}
+                value={ex.value}
+              />
+            ))}
+          </Picker>
         </View>
       </View>
-    );
-  } //end render card
-  function RenderSets({ exercise, onSetChange }) {
-    return (
-      <>
-        {exercise.sets.map((set) => (
-          <View
-            key={set.id}
+      <View
+        style={{
+          alignItems: "center",
+          borderWidth: 1,
+          borderColor: colors.border,
+          borderRadius: 8,
+          padding: 10,
+          margin: 10,
+          backgroundColor: colors.primary,
+        }}
+      >
+        <RenderSets exercise={exercise} />
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-around",
+            padding: 10,
+          }}
+        >
+          <TouchableOpacity
             style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-              width: "100%",
-              marginVertical: 5,
+              backgroundColor: colors.accent,
+              marginTop: 10,
+              padding: spacing.sm,
+              borderRadius: 10,
+              marginRight: 15,
             }}
+            onPress={() => removeExercise(exercise.id)}
           >
-            <Text style={[styles.headerText]}>Set {set.id}</Text>
-            <TextInput
-              style={[styles.textInput, { flex: 1, marginRight: 5 }]}
-              placeholder="Reps"
-              placeholderTextColor={colors.accent}
-              keyboardType="numeric"
-              value={set.reps}
-              onChangeText={(value) =>
-                onSetChange(exercise.id, set.id, "reps", value)
-              }
-            />
-            <TextInput
-              style={[styles.textInput, { flex: 1 }]}
-              placeholder="Weight"
-              placeholderTextColor={colors.accent}
-              keyboardType="numeric"
-              value={set.weight}
-              onChangeText={(value) =>
-                onSetChange(exercise.id, set.id, "weight", value)
-              }
-            />
-          </View>
-        ))}
-      </>
-    );
-  } //end render sets
+            <Text style={styles.text}>Remove Exercise</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              backgroundColor: colors.accent,
+              padding: spacing.sm,
+              borderRadius: 10,
+              marginTop: 10,
+            }}
+            onPress={() => addSetToExercise(exercise.id)}
+          >
+            <Text style={styles.text}>Add Set</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  );
+
+  const RenderSets = ({ exercise }) => (
+    <>
+      {exercise.sets.map((set) => (
+        <View
+          key={set.id}
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
+            marginVertical: 5,
+          }}
+        >
+          <Text style={[styles.headerText]}>Set {set.id}</Text>
+          <TextInput
+            style={[styles.textInput, { flex: 1, marginRight: 5 }]}
+            placeholder="Reps"
+            placeholderTextColor={colors.accent}
+            keyboardType="numeric"
+            value={set.reps}
+            onChangeText={(value) =>
+              updateSetValue(exercise.id, set.id, "reps", value)
+            }
+          />
+          <TextInput
+            style={[styles.textInput, { flex: 1 }]}
+            placeholder="Weight"
+            placeholderTextColor={colors.accent}
+            keyboardType="numeric"
+            value={set.weight}
+            onChangeText={(value) =>
+              updateSetValue(exercise.id, set.id, "weight", value)
+            }
+          />
+        </View>
+      ))}
+    </>
+  );
 
   return (
     <View style={[styles.container]}>
@@ -239,10 +291,10 @@ export default function AddRoutine({ navigation }) {
             style={[
               {
                 height: 40,
+                width: '90%',
                 borderWidth: 1,
                 borderColor: colors.border,
                 borderRadius: 4,
-                marginHorizontal: 5,
                 paddingHorizontal: 8,
                 color: colors.accent,
                 backgroundColor: colors.background,
@@ -250,28 +302,22 @@ export default function AddRoutine({ navigation }) {
             ]}
             placeholder="Routine Name"
             placeholderTextColor={colors.accent}
+            value={routineName}
+            onChangeText={setRoutineName}
           />
         </View>
         {/* END HEADER */}
         {exercises.map((exercise) => (
-          <RenderNewExerciseForm
-            key={exercise.id}
-            exercise={exercise}
-            exercisesList={exercisesList}
-            onTextChanged={onTextChanged}
-            onDelete={removeExercise}
-          />
+          <RenderNewExerciseForm key={exercise.id} exercise={exercise} />
         ))}
       </ScrollView>
       {/*BUTTONS VIEW   */}
       <View
-        style={[
-          {
-            flexDirection: "row",
-            justifyContent: "space-between",
-            marginTop: "auto",
-          },
-        ]}
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          marginTop: "auto",
+        }}
       >
         <TouchableOpacity
           style={[
@@ -283,7 +329,7 @@ export default function AddRoutine({ navigation }) {
           ]}
           onPress={() => navigation.goBack()}
         >
-        <Text style={styles.text}>Go Back</Text>
+          <Text style={styles.text}>Cancel</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.startButton, {}]}
@@ -299,7 +345,7 @@ export default function AddRoutine({ navigation }) {
               width: "auto",
             },
           ]}
-          onPress={() => showAlert("Successfully Saved Routine")} //Will make this actually do something later
+          onPress={saveRoutine}
         >
           <Text style={styles.text}>Save Routine</Text>
         </TouchableOpacity>

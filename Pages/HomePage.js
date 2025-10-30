@@ -1,12 +1,58 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { Text, View, Alert, TouchableOpacity, ScrollView, Switch } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { styles, colors } from '../styles';
+import { openDatabaseAsync } from 'expo-sqlite';
 
 export default function HomePage({ navigation }) {
+  const [isPaidUser, setIsPaidUser] = useState(true);
+  const [userRoutines, setUserRoutines] = useState([]);
 
-  const [isPaidUser, setIsPaidUser] = useState(true); // Toggle for testing
+  useEffect(() => {
+    loadUserRoutines();
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      loadUserRoutines();
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  const loadUserRoutines = async () => {
+    try {
+      const db = await openDatabaseAsync('workout.db');
+      // Load user-created routines (ID > 5, since 1-5 are premade)
+      const routineRows = await db.getAllAsync(
+        'SELECT * FROM routines WHERE id > 5 ORDER BY id DESC LIMIT 3;'
+      );
+      
+      const routinesWithExercises = [];
+      for (const routine of routineRows) {
+        const exRows = await db.getAllAsync(
+          `SELECT e.name, we.sets, we.reps, we.weight
+           FROM routine_exercises we
+           JOIN exercises e ON e.id = we.exerciseId
+           WHERE we.routineId = ?;`,
+          [routine.id]
+        );
+        routinesWithExercises.push({ ...routine, exercises: exRows });
+      }
+      
+      setUserRoutines(routinesWithExercises);
+    } catch (error) {
+      console.error('Error loading user routines:', error);
+    }
+  };
+
+  const startRoutine = (routine) => {
+    navigation.navigate('UseWorkout', {
+      workoutId: routine.id,
+      workoutName: routine.name,
+      isPremade: false,
+    });
+  };
 
   const showAlert = (text) => {
     Alert.alert("SoloFit", text);
@@ -24,7 +70,6 @@ export default function HomePage({ navigation }) {
         
         <View style={{ gap: 12, marginBottom: 32 }}>
           {/* Start Empty Workout - Paid Only */}
-          {/* Now leads to AddExercises.js test page */}
           <TouchableOpacity
             style={[
               styles.startButton,
@@ -36,10 +81,8 @@ export default function HomePage({ navigation }) {
             ]}
             onPress={() => {
               if (isPaidUser) {
-                navigation.navigate('AddExercises', {
+                navigation.navigate('StartWorkout', {
                   isPaidUser: true,
-                  routineMode: false,
-                  workoutType: 'empty',
                 });
               }
             }}
@@ -62,8 +105,6 @@ export default function HomePage({ navigation }) {
             onPress={() =>
               navigation.navigate('AddRoutine', {
                 isPaidUser,
-                routineMode: true,
-                workoutType: 'routine',
               })
             }
           >
@@ -81,10 +122,7 @@ export default function HomePage({ navigation }) {
               styles.startButton,
               { backgroundColor: '#8338ec', padding: 20 },
             ]}
-            onPress={() => {
-              // TODO: Navigate to premade workouts selection
-              Alert.alert('Coming Soon', 'Premade Workouts feature is under development!');
-            }}
+            onPress={() => navigation.navigate('PremadeWorkouts')}
           >
             <Text style={[styles.startText, { fontSize: 18, fontWeight: 'bold' }]}>
               ⭐ Premade Workouts
@@ -108,34 +146,61 @@ export default function HomePage({ navigation }) {
             </TouchableOpacity>
           </View>
           
-          {/* Placeholder for user routines... Or something else */}
-          <View
-            style={{
-              backgroundColor: '#1a3a52',
-              padding: 20,
-              borderRadius: 10,
-              alignItems: 'center',
-            }}
-          >
-            <Text style={[styles.text, { opacity: 0.6, textAlign: 'center' }]}>
-              No saved routines yet.{'\n'}
-              Create one using "New Routine" above!
-            </Text>
-          </View>
+          {userRoutines.length === 0 ? (
+            <View
+              style={{
+                backgroundColor: '#1a3a52',
+                padding: 20,
+                borderRadius: 10,
+                alignItems: 'center',
+              }}
+            >
+              <Text style={[styles.text, { opacity: 0.6, textAlign: 'center' }]}>
+                No saved routines yet.{'\n'}
+                Create one using "New Routine" above!
+              </Text>
+            </View>
+          ) : (
+            userRoutines.map((routine) => (
+              <TouchableOpacity
+                key={routine.id}
+                style={{
+                  backgroundColor: '#1a3a52',
+                  padding: 15,
+                  borderRadius: 10,
+                  marginBottom: 10,
+                }}
+                onPress={() => startRoutine(routine)}
+              >
+                <Text style={[styles.text, { fontSize: 16, fontWeight: 'bold', marginBottom: 5 }]}>
+                  {routine.name}
+                </Text>
+                <Text style={[styles.text, { fontSize: 12, opacity: 0.7 }]}>
+                  {routine.exercises.length} exercises
+                </Text>
+                <Text style={[styles.text, { color: '#4CAF50', fontSize: 12, marginTop: 5 }]}>
+                  Tap to start →
+                </Text>
+              </TouchableOpacity>
+            ))
+          )}
         </View>
 
-        {/* Developer Testing Section - For things we make that aren't fully there yet */}
-        <View style={{ backgroundColor: '#2d1b3d', padding: 16, borderRadius: 10, borderWidth: 2, borderColor: '#8338ec', marginBottom: 20, }}>
+        {/* Developer Testing Section */}
+        <View style={{ backgroundColor: '#2d1b3d', padding: 16, borderRadius: 10, borderWidth: 2, borderColor: '#8338ec', marginBottom: 20 }}>
           <Text style={[styles.text, { fontSize: 16, marginBottom: 12, fontWeight: 'bold' }]}>
             🔧 Developer Testing
           </Text>
           
-          <TouchableOpacity style={[ styles.startButton, { backgroundColor: '#4CAF50', marginBottom: 10 },]} onPress={() => navigation.navigate('GPTShowExercisesExample')}>
+          <TouchableOpacity
+            style={[styles.startButton, { backgroundColor: '#4CAF50', marginBottom: 10 }]}
+            onPress={() => navigation.navigate('GPTShowExercisesExample')}
+          >
             <Text style={styles.startText}>View All Exercises (Example)</Text>
           </TouchableOpacity>
 
-          {/* 🧪 Testing Mode toggle moved here */}
-          <View style={{ backgroundColor: '#1a3a52', padding: 16, borderRadius: 10, marginBottom: 8, alignItems: 'center',}}>
+          {/* Testing Mode toggle */}
+          <View style={{ backgroundColor: '#1a3a52', padding: 16, borderRadius: 10, marginBottom: 8, alignItems: 'center' }}>
             <Text style={[styles.text, { fontSize: 16, marginBottom: 12 }]}>🧪 Testing Mode</Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
               <Text style={[styles.text, { opacity: isPaidUser ? 0.5 : 1 }]}>Free User</Text>
@@ -171,12 +236,9 @@ export default function HomePage({ navigation }) {
           <MaterialIcons name="add-circle-outline" size={28} color="black" />
           <Text>Add</Text>
         </TouchableOpacity>
-
-        {/* I suggest moving this list to the Profile page and placing the History on the Home page. The workout list is more like a settings feature and doesn’t change frequently, whereas the history is likely to be accessed more often. */}
-        {/* <TouchableOpacity style={styles.footerButton} onPress={() => navigation.navigate('WorkoutHistory')}> */}
-        <TouchableOpacity style={styles.footerButton} onPress={() => navigation.navigate('RoutineList')}>
+        <TouchableOpacity style={styles.footerButton} onPress={() => navigation.navigate('WorkoutHistory')}>
           <MaterialIcons name="fitness-center" size={28} color="black" />
-          <Text>Workouts</Text>
+          <Text>Workout History</Text>
         </TouchableOpacity>
       </View>
 
