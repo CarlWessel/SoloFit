@@ -26,7 +26,7 @@ export default function HomePage({ navigation }) {
       </View>
 
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.footerButton} onPress={() => showAlert("Display profile")}>
+        <TouchableOpacity style={styles.footerButton} onPress={() => {navigation.navigate('RoutineList'); showAlert("Should display profile, and Routine List will be a part of the profile. Since we're not doing profile page for the moment. I just put the Routine List Page here")}}>
           <MaterialIcons name="person-outline" size={28} color="black" />
           <Text>Profile</Text>
         </TouchableOpacity>
@@ -36,9 +36,7 @@ export default function HomePage({ navigation }) {
           <Text>Add</Text>
         </TouchableOpacity>
 
-        {/* I suggest moving this list to the Profile page and placing the History on the Home page. The workout list is more like a settings feature and doesn’t change frequently, whereas the history is likely to be accessed more often. */}
-        {/* <TouchableOpacity style={styles.footerButton} onPress={() => navigation.navigate('WorkoutHistory')}> */}
-        <TouchableOpacity style={styles.footerButton} onPress={() => navigation.navigate('RoutineList')}>
+        <TouchableOpacity style={styles.footerButton} onPress={() => navigation.navigate('WorkoutHistory')}>
           <MaterialIcons name="fitness-center" size={28} color="black" />
           <Text>Workouts</Text>
         </TouchableOpacity>

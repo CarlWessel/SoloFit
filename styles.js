@@ -96,8 +96,18 @@ export const styles = StyleSheet.create({
         paddingBottom: spacing.xs,
         fontWeight: '500'
     },
+    listSubheader: {
+        color: colors.accent,
+        fontSize: 16,
+        paddingBottom: spacing.xs,
+        fontWeight: '500'
+    },
     listText: {
         color: colors.textLight,
+        fontSize: 15,
+    },
+    listTextHight: {
+        color: colors.accent,
         fontSize: 15,
     },
     buttonRow: {
