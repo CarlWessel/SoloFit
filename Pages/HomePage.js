@@ -3,7 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Text, View, Alert, TouchableOpacity, ScrollView, Switch } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { styles, colors } from '../styles';
-import WorkoutService from '../utils/WorkoutService';
+import RoutineService from '../services/RoutineService';
 
 export default function HomePage({ navigation }) {
   const [isPaidUser, setIsPaidUser] = useState(true);
@@ -22,7 +22,7 @@ export default function HomePage({ navigation }) {
 
   const loadUserRoutines = async () => {
     try {
-      const routinesData = await WorkoutService.getUserRoutines();
+      const routinesData = await RoutineService.getUserRoutines();
       // Limit to 3 most recent
       setUserRoutines(routinesData.slice(0, 3));
     } catch (error) {
@@ -100,16 +100,16 @@ export default function HomePage({ navigation }) {
             </Text>
           </TouchableOpacity>
 
-          {/* Premade Workouts - All Users */}
+          {/* Premade routines - All Users */}
           <TouchableOpacity
             style={[
               styles.startButton,
               { backgroundColor: '#8338ec', padding: 20 },
             ]}
-            onPress={() => navigation.navigate('PremadeWorkouts')}
+            onPress={() => navigation.navigate('PremadeRoutines')}
           >
             <Text style={[styles.startText, { fontSize: 18, fontWeight: 'bold' }]}>
-              ⭐ Premade Workouts
+              ⭐ Premade routines
             </Text>
             <Text style={[styles.text, { fontSize: 12, marginTop: 4 }]}>
               Choose from our templates
@@ -211,7 +211,7 @@ export default function HomePage({ navigation }) {
 
       {/* Footer Navigation */}
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.footerButton} onPress={() => showAlert("Display profile")}>
+        <TouchableOpacity style={styles.footerButton} onPress={() => {navigation.navigate('RoutineList'); showAlert("Should display profile, and Routine List will be a part of the profile. Since we're not doing profile page for the moment. I just put the Routine List Page here")}}>
           <MaterialIcons name="person-outline" size={28} color="black" />
           <Text>Profile</Text>
         </TouchableOpacity>
@@ -222,7 +222,7 @@ export default function HomePage({ navigation }) {
         </TouchableOpacity>
         <TouchableOpacity style={styles.footerButton} onPress={() => navigation.navigate('WorkoutHistory')}>
           <MaterialIcons name="fitness-center" size={28} color="black" />
-          <Text>Workout History</Text>
+          <Text>History</Text>
         </TouchableOpacity>
       </View>
 

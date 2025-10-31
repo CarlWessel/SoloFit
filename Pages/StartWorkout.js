@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, TextInput, ScrollView, Alert, Modal, FlatList,} from 'react-native';
 import { styles, colors, spacing } from '../styles';
 import { Picker } from '@react-native-picker/picker';
-import WorkoutService from '../utils/WorkoutService';
+import RoutineService from '../services/RoutineService';
+import ExerciseService from '../services/ExerciseService';
+import WorkoutService from '../services/WorkoutService';
 
 export default function StartWorkout({ navigation, route }) {
   const { isPaidUser = false } = route.params || {};
@@ -12,17 +14,17 @@ export default function StartWorkout({ navigation, route }) {
   const [exercisesList, setExercisesList] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [routines, setRoutines] = useState([]);
-  const [premadeWorkouts, setPremadeWorkouts] = useState([]);
+  const [premadeRoutines, setPremadeRoutines] = useState([]);
 
   useEffect(() => {
     loadExercises();
     loadRoutines();
-    loadPremadeWorkouts();
+    loadPremadeRoutines();
   }, []);
 
   const loadExercises = async () => {
     try {
-      const rows = await WorkoutService.getAllExercises();
+      const rows = await ExerciseService.getAllExercises();
       setExercisesList(rows.map(ex => ({ label: ex.name, value: ex.id })));
     } catch (error) {
       console.error('Error loading exercises:', error);
@@ -31,19 +33,19 @@ export default function StartWorkout({ navigation, route }) {
 
   const loadRoutines = async () => {
     try {
-      const routinesData = await WorkoutService.getUserRoutines();
+      const routinesData = await RoutineService.getUserRoutines();
       setRoutines(routinesData);
     } catch (error) {
       console.error('Error loading routines:', error);
     }
   };
 
-  const loadPremadeWorkouts = async () => {
+  const loadPremadeRoutines = async () => {
     try {
-      const premadeData = await WorkoutService.getPremadeWorkouts();
-      setPremadeWorkouts(premadeData);
+      const premadeData = await RoutineService.getPremadeRoutines();
+      setPremadeRoutines(premadeData);
     } catch (error) {
-      console.error('Error loading premade workouts:', error);
+      console.error('Error loading premade routines:', error);
     }
   };
 
@@ -152,10 +154,16 @@ export default function StartWorkout({ navigation, route }) {
         }
       }
 
-      await WorkoutService.addWorkoutHistory({
-        name: workoutName.trim(),
-        date: new Date().toISOString(),
-        exercises: exercisesData
+      await WorkoutService.addWorkout({
+        // question: do we want a name for workouthistory
+        // name: workoutName.trim(),
+        // date: new Date().toISOString(),
+
+        // toISOString() will pass it to UTC time, but we're going to change this to manually input I just ignore this problem for the moment
+        startDateTime: new Date().toISOString().slice(0, 16),
+        endDateTime: new Date().toISOString().slice(0, 16),
+        exercises: exercisesData,
+        notes: "TODO: Add UI for notes"
       });
 
       Alert.alert('Success', 'Workout saved!', [
@@ -408,9 +416,9 @@ export default function StartWorkout({ navigation, route }) {
               ))}
 
               <Text style={[styles.text, { fontSize: 18, fontWeight: 'bold', marginTop: 20 }]}>
-                Premade Workouts
+                Premade routines
               </Text>
-              {premadeWorkouts.map((premade) => (
+              {premadeRoutines.map((premade) => (
                 <View key={premade.id} style={{ marginVertical: 10 }}>
                   <Text style={[styles.text, { color: colors.accent, marginBottom: 5 }]}>
                     {premade.name}

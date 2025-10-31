@@ -2,21 +2,21 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, FlatList } from 'react-native';
 import { styles } from '../styles';
 import { MaterialIcons } from '@expo/vector-icons';
-import WorkoutService from '../utils/WorkoutService';
+import RoutineService from '../services/RoutineService';
 
-export default function PremadeWorkouts({ navigation }) {
-  const [premadeWorkouts, setPremadeWorkouts] = useState([]);
+export default function PremadeRoutines({ navigation }) {
+  const [premadeRoutines, setPremadeRoutines] = useState([]);
 
   useEffect(() => {
-    loadPremadeWorkouts();
+    loadPremadeRoutines();
   }, []);
 
-  const loadPremadeWorkouts = async () => {
+  const loadPremadeRoutines = async () => {
     try {
-      const premadeData = await WorkoutService.getPremadeWorkouts();
-      setPremadeWorkouts(premadeData);
+      const premadeData = await RoutineService.getPremadeRoutines();
+      setPremadeRoutines(premadeData);
     } catch (error) {
-      console.error('Error loading premade workouts:', error);
+      console.error('Error loading premade routines:', error);
     }
   };
 
@@ -56,14 +56,14 @@ export default function PremadeWorkouts({ navigation }) {
         >
           <MaterialIcons name="arrow-back-ios-new" style={styles.headerText} />
         </TouchableOpacity>
-        <Text style={styles.headerText}>Premade Workouts</Text>
+        <Text style={styles.headerText}>Premade routines</Text>
         <View style={styles.headerRight} />
       </View>
 
       <View style={[styles.main]}>
         <FlatList
           style={styles.list}
-          data={premadeWorkouts}
+          data={premadeRoutines}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderListItem}
           contentContainerStyle={{ paddingBottom: 30 }}

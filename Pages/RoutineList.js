@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, FlatList, Alert } from 'react-native';
 import { styles } from '../styles';
 import { MaterialIcons } from '@expo/vector-icons';
-import WorkoutService from '../utils/WorkoutService';
+import RoutineService from '../services/RoutineService';
 
 export default function RoutineList({ navigation }) {
   const [routines, setRoutines] = useState([]);
@@ -20,7 +20,7 @@ export default function RoutineList({ navigation }) {
 
   const loadRoutines = async () => {
     try {
-      const routinesData = await WorkoutService.getUserRoutines();
+      const routinesData = await RoutineService.getUserRoutines();
       setRoutines(routinesData);
     } catch (error) {
       console.error('Error loading routines:', error);
@@ -46,7 +46,7 @@ export default function RoutineList({ navigation }) {
           style: 'destructive',
           onPress: async () => {
             try {
-              await WorkoutService.deleteRoutine(id);
+              await RoutineService.deleteRoutine(id);
               loadRoutines();
             } catch (error) {
               console.error('Error deleting routine:', error);

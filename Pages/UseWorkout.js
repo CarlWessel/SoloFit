@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, TextInput, ScrollView, Alert, } from 'react-native';
 import { styles, colors, spacing } from '../styles';
-import WorkoutService from '../utils/WorkoutService';
+import RoutineService from '../services/RoutineService';
+import WorkoutService from '../services/WorkoutService';
 
 export default function UseWorkout({ navigation, route }) {
   const { workoutId, workoutName, isPremade = false } = route.params;
@@ -14,7 +15,7 @@ export default function UseWorkout({ navigation, route }) {
 
   const loadWorkoutExercises = async () => {
     try {
-      const routine = await WorkoutService.getRoutineById(workoutId);
+      const routine = await RoutineService.getRoutineById(workoutId);
       
       if (routine && routine.exercises) {
         // Convert to format for display with sets array
@@ -73,10 +74,16 @@ export default function UseWorkout({ navigation, route }) {
         }
       }
 
-      await WorkoutService.addWorkoutHistory({
-        name: workoutName,
-        date: new Date(workoutDate).toISOString(),
-        exercises: exercisesData
+      await WorkoutService.addWorkout({
+        // question: do we want a name for workouthistory
+        // name: workoutName.trim(),
+        // date: new Date().toISOString(),
+
+        // toISOString() will pass it to UTC time, but we're going to change this to manually input I just ignore this problem for the moment
+        startDateTime: new Date().toISOString().slice(0, 16),
+        endDateTime: new Date().toISOString().slice(0, 16),
+        exercises: exercisesData,
+        notes: "TODO: Add UI for notes"
       });
 
       Alert.alert('Success', 'Workout saved to history!', [

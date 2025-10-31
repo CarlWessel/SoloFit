@@ -14,7 +14,7 @@ import AddRoutine from './Pages/AddRoutine';
 import StartWorkout from './Pages/StartWorkout';
 import RoutineList from './Pages/RoutineList';
 import WorkoutHistory from './Pages/WorkoutHistory';
-import PremadeWorkouts from './Pages/PremadeWorkouts';
+import PremadeRoutines from './Pages/PremadeRoutines';
 import UseWorkout from './Pages/UseWorkout';
 import Example from './Pages/GPTShowExercisesExample';
 
@@ -62,7 +62,7 @@ export default function App() {
         <Stack.Screen name="StartWorkout" component={StartWorkout} />
         <Stack.Screen name="RoutineList" component={RoutineList} />
         <Stack.Screen name="WorkoutHistory" component={WorkoutHistory} />
-        <Stack.Screen name="PremadeWorkouts" component={PremadeWorkouts} />
+        <Stack.Screen name="PremadeRoutines" component={PremadeRoutines} />
         <Stack.Screen name="UseWorkout" component={UseWorkout} />
         <Stack.Screen name="GPTShowExercisesExample" component={Example} />
       </Stack.Navigator>

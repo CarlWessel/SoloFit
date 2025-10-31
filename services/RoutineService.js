@@ -1,16 +1,19 @@
-import { openDatabaseAsync } from 'expo-sqlite';
+ import { DatabaseManager } from '../utils/DatabaseManager';
 
-export default class WorkoutService {
+export default class RoutineService {
 
-  static async addWorkout({ startDateTime, endDateTime, notes = '', exercises = [] }) {
-    const db = await openDatabaseAsync('workout.db');
-
+  // ============ ROUTINES ============
+  static async addRoutine({ name, exercises = [] }) {
+    const db = await DatabaseManager.getDB();
+    
+    // Insert routine (let AUTOINCREMENT handle the ID)
     const result = await db.runAsync(
-      `INSERT INTO workout (startDateTime, endDateTime, notes) VALUES (?, ?, ?);`,
-      [startDateTime, endDateTime, notes]
+      'INSERT INTO routines (name) VALUES (?);',
+      [name]
     );
-    const workoutId = result.lastInsertRowId;
-
+    
+    const routineId = result.lastInsertRowId;
+    // Insert exercises for this routine
     for (const ex of exercises) {
       await db.runAsync(
         'INSERT INTO routine_exercises (routineId, exerciseId, sets, reps, weight) VALUES (?, ?, ?, ?, ?);',
@@ -21,7 +24,7 @@ export default class WorkoutService {
   }
 
   static async getAllRoutines() {
-    const db = await this.getDB();
+    const db = await DatabaseManager.getDB();
     const routines = await db.getAllAsync('SELECT * FROM routines;');
     
     for (const routine of routines) {
@@ -38,12 +41,11 @@ export default class WorkoutService {
   }
 
   static async getUserRoutines() {
-    const db = await this.getDB();
+    const db = await DatabaseManager.getDB();
     // User routines have ID > 5 (premade are 1-5)
     const routines = await db.getAllAsync(
       'SELECT * FROM routines WHERE id > 5 ORDER BY id DESC;'
     );
-    const workouts = await db.getAllAsync(`SELECT * FROM workout ORDER BY datetime(startDateTime) DESC;`);
     
     for (const routine of routines) {
       routine.exercises = await db.getAllAsync(
@@ -59,7 +61,7 @@ export default class WorkoutService {
   }
 
   static async getRoutineById(routineId) {
-    const db = await this.getDB();
+    const db = await DatabaseManager.getDB();
     const [routine] = await db.getAllAsync(
       'SELECT * FROM routines WHERE id = ?;',
       [routineId]
@@ -79,15 +81,15 @@ export default class WorkoutService {
   }
 
   static async deleteRoutine(id) {
-    const db = await this.getDB();
+    const db = await DatabaseManager.getDB();
     await db.runAsync('DELETE FROM routine_exercises WHERE routineId = ?;', [id]);
     await db.runAsync('DELETE FROM routines WHERE id = ?;', [id]);
   }
 
-  // ============ Premade Workouts ============
-  static async getPremadeWorkouts() {
-    const db = await this.getDB();
-    // Premade workouts have IDs 1-5
+  // ============ Premade Routine ============
+  static async getPremadeRoutines() {
+    const db = await DatabaseManager.getDB();
+    // Premade routines have IDs 1-5
     const premades = await db.getAllAsync(
       'SELECT * FROM routines WHERE id <= 5;'
     );
@@ -103,50 +105,5 @@ export default class WorkoutService {
     }
     
     return premades;
-  }
-
-  // ============ WORKOUT HISTORY ============
-  static async addWorkoutHistory({ name, date, exercises = [] }) {
-    const db = await this.getDB();
-    
-    const result = await db.runAsync(
-      'INSERT INTO workout_history (name, date) VALUES (?, ?);',
-      [name, date]
-    );
-    
-    const workoutId = result.lastInsertRowId;
-    // Insert exercises for this workout
-    for (const ex of exercises) {
-      await db.runAsync(
-        'INSERT INTO workout_history_exercises (workoutId, exerciseId, sets, reps, weight) VALUES (?, ?, ?, ?, ?);',
-        [workoutId, ex.exerciseId, ex.sets, ex.reps, ex.weight]
-      );
-    }
-    return workoutId;
-  }
-
-  static async getWorkoutHistory() {
-    const db = await this.getDB();
-    const workouts = await db.getAllAsync(
-      'SELECT * FROM workout_history ORDER BY datetime(date) DESC;'
-    );
-    
-    for (const workout of workouts) {
-      workout.exercises = await db.getAllAsync(
-        `SELECT e.name, wh.sets, wh.reps, wh.weight
-         FROM workout_history_exercises wh
-         JOIN exercises e ON e.id = wh.exerciseId
-         WHERE wh.workoutId = ?;`,
-        [workout.id]
-      );
-    }
-    
-    return workouts;
-  }
-
-  static async deleteWorkoutHistory(id) {
-    const db = await this.getDB();
-    await db.runAsync('DELETE FROM workout_history_exercises WHERE workoutId = ?;', [id]);
-    await db.runAsync('DELETE FROM workout_history WHERE id = ?;', [id]);
   }
 }

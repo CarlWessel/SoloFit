@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, TextInput, ScrollView, Alert } from "react-native";
 import { styles, colors, spacing } from '../styles';
 import { Picker } from '@react-native-picker/picker';
-import WorkoutService from '../utils/WorkoutService';
+import RoutineService from '../services/RoutineService';
+import ExerciseService from '../services/ExerciseService';
 
 export default function AddRoutine({ navigation }) {
   const [routineName, setRoutineName] = useState("");
@@ -16,7 +17,7 @@ export default function AddRoutine({ navigation }) {
 
   const loadExercises = async () => {
     try {
-      const rows = await WorkoutService.getAllExercises();
+      const rows = await ExerciseService.getAllExercises();
       setExercisesList(rows.map(ex => ({ label: ex.name, value: ex.id })));
     } catch (error) {
       console.error('Error loading exercises:', error);
@@ -116,7 +117,7 @@ export default function AddRoutine({ navigation }) {
         };
       }).filter(ex => ex.sets > 0);
 
-      await WorkoutService.addRoutine({
+      await RoutineService.addRoutine({
         name: routineName.trim(),
         exercises: exercisesData
       });

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, FlatList, Alert } from 'react-native';
 import { styles } from '../styles';
 import { MaterialIcons } from '@expo/vector-icons';
-import WorkoutService from '../utils/WorkoutService';
+import WorkoutService from '../services/WorkoutService';
 
 export default function WorkoutHistory({ navigation }) {
   const [workouts, setWorkouts] = useState([]);
@@ -72,10 +72,6 @@ export default function WorkoutHistory({ navigation }) {
           <MaterialIcons name="arrow-back-ios-new" style={styles.headerText}/>
         </TouchableOpacity>
         <Text style={styles.headerText}>Workout History</Text>
-        {/* <TouchableOpacity style={styles.headerRight} onPress={() => navigation.navigate('EditWorkout')}> */}
-        <TouchableOpacity style={styles.headerRight} onPress={() => showAlert("EditWorkout Page")}>
-          <MaterialIcons name="add" style={[styles.headerText, { fontSize: 36 }]} />
-        </TouchableOpacity>
       </View>
 
       <View style={styles.main}>
