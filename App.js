@@ -11,7 +11,6 @@ import { DBSetup } from './utils/DBSetup';
 // Pages
 import HomePage from './Pages/HomePage';
 import AddRoutine from './Pages/AddRoutine';
-import AddExercises from './Pages/AddExercises';
 import StartWorkout from './Pages/StartWorkout';
 import RoutineList from './Pages/RoutineList';
 import WorkoutHistory from './Pages/WorkoutHistory';
@@ -60,7 +59,6 @@ export default function App() {
       >
         <Stack.Screen name="Home" component={HomePage} />
         <Stack.Screen name="AddRoutine" component={AddRoutine} />
-        <Stack.Screen name="AddExercises" component={AddExercises} />
         <Stack.Screen name="StartWorkout" component={StartWorkout} />
         <Stack.Screen name="RoutineList" component={RoutineList} />
         <Stack.Screen name="WorkoutHistory" component={WorkoutHistory} />

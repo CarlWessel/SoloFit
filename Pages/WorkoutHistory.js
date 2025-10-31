@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, FlatList, Alert } from 'react-native';
 import { styles } from '../styles';
 import { MaterialIcons } from '@expo/vector-icons';
-import { openDatabaseAsync } from 'expo-sqlite';
+import WorkoutService from '../utils/WorkoutService';
 
 export default function WorkoutHistory({ navigation }) {
   const [workouts, setWorkouts] = useState([]);
@@ -20,34 +20,19 @@ export default function WorkoutHistory({ navigation }) {
 
   const loadWorkoutHistory = async () => {
     try {
-      const db = await openDatabaseAsync('workout.db');
-      const workoutRows = await db.getAllAsync(
-        'SELECT * FROM workout_history ORDER BY date DESC;'
-      );
+      const workoutsData = await WorkoutService.getWorkoutHistory();
       
-      const workoutsWithExercises = [];
-      for (const workout of workoutRows) {
-        const exRows = await db.getAllAsync(
-          `SELECT e.name, wh.sets, wh.reps, wh.weight
-           FROM workout_history_exercises wh
-           JOIN exercises e ON e.id = wh.exerciseId
-           WHERE wh.workoutId = ?;`,
-          [workout.id]
-        );
-        
-        workoutsWithExercises.push({
-          ...workout,
-          exercises: exRows,
-          formattedDate: new Date(workout.date).toLocaleDateString('en-US', {
-            weekday: 'short',
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-          }),
-        });
-      }
+      const formattedWorkouts = workoutsData.map(workout => ({
+        ...workout,
+        formattedDate: new Date(workout.date).toLocaleDateString('en-US', {
+          weekday: 'short',
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+        }),
+      }));
       
-      setWorkouts(workoutsWithExercises);
+      setWorkouts(formattedWorkouts);
     } catch (error) {
       console.error('Error loading workout history:', error);
     }
@@ -64,9 +49,7 @@ export default function WorkoutHistory({ navigation }) {
           style: 'destructive',
           onPress: async () => {
             try {
-              const db = await openDatabaseAsync('workout.db');
-              await db.runAsync('DELETE FROM workout_history_exercises WHERE workoutId = ?;', [id]);
-              await db.runAsync('DELETE FROM workout_history WHERE id = ?;', [id]);
+              await WorkoutService.deleteWorkoutHistory(id);
               loadWorkoutHistory();
             } catch (error) {
               console.error('Error deleting workout:', error);

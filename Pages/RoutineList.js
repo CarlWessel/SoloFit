@@ -1,37 +1,30 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, Alert } from 'react-native';
 import { styles } from '../styles';
 import { MaterialIcons } from '@expo/vector-icons';
-import { openDatabaseAsync } from 'expo-sqlite';
+import WorkoutService from '../utils/WorkoutService';
 
 export default function RoutineList({ navigation }) {
   const [routines, setRoutines] = useState([]);
 
   useEffect(() => {
-    (async () => {
-      await loadRoutines();
-    })();
+    loadRoutines();
   }, []);
 
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      loadRoutines();
+    });
+    return unsubscribe;
+  }, [navigation]);
+
   const loadRoutines = async () => {
-
-    // I did this because I'm lazy and I don't want to type the mock data
-    // This part should be replaced with function from separate database hadling js file
-    const db = await openDatabaseAsync('workout.db');
-    const routineRows = await db.getAllAsync('SELECT * FROM routines;');
-    const routinesWithExercises = [];
-    for (const w of routineRows) {
-      const exRows = await db.getAllAsync(
-        `SELECT e.name, we.sets, we.reps, we.weight
-         FROM routine_exercises we
-         JOIN exercises e ON e.id = we.exerciseId
-         WHERE we.routineId = ?;`,
-        [w.id]
-      );
-      routinesWithExercises.push({ ...w, exercises: exRows });
+    try {
+      const routinesData = await WorkoutService.getUserRoutines();
+      setRoutines(routinesData);
+    } catch (error) {
+      console.error('Error loading routines:', error);
     }
-
-    setRoutines(routinesWithExercises);
   };
 
   const editRoutine = (id) => {
@@ -42,9 +35,27 @@ export default function RoutineList({ navigation }) {
     // and add a boolean to determine if it's add or edit
   };
 
-  const deleteRoutine = (id) => {
-    setRoutines(routines.filter((w) => w.id !== id));
-    // TODO: remove from db
+  const deleteRoutine = async (id) => {
+    Alert.alert(
+      'Delete Routine',
+      'Are you sure you want to delete this routine?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await WorkoutService.deleteRoutine(id);
+              loadRoutines();
+            } catch (error) {
+              console.error('Error deleting routine:', error);
+              Alert.alert('Error', 'Failed to delete routine');
+            }
+          },
+        },
+      ]
+    );
   };
 
   const renderListItem = ({ item }) => (
@@ -57,8 +68,7 @@ export default function RoutineList({ navigation }) {
           {ex.name} — {ex.sets} sets × {ex.reps} reps @ {ex.weight} lb
         </Text>
       ))}
-
-      <View  style={styles.buttonRow}>
+      <View style={styles.buttonRow}>
         <TouchableOpacity style={styles.editButton} onPress={() => editRoutine(item.id)}>
           <Text style={styles.listText}>Edit</Text>
         </TouchableOpacity>
@@ -83,14 +93,23 @@ export default function RoutineList({ navigation }) {
       </View>
 
       <View style={[styles.main]}>
-        <FlatList
-          style={styles.list}
-          nestedScrollEnabled
-          data={routines}
-          keyExtractor={(item) => item.id}
-          renderItem={renderListItem}
-          contentContainerStyle={{ paddingBottom: 30}}
-        />
+        {routines.length === 0 ? (
+          <View style={{ padding: 20, alignItems: 'center' }}>
+            <Text style={[styles.text, { opacity: 0.6, textAlign: 'center' }]}>
+              No routines yet.{'\n'}
+              Create one using the + button above!
+            </Text>
+          </View>
+        ) : (
+          <FlatList
+            style={styles.list}
+            nestedScrollEnabled
+            data={routines}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={renderListItem}
+            contentContainerStyle={{ paddingBottom: 30}}
+          />
+        )}
       </View>
     </View>
   );

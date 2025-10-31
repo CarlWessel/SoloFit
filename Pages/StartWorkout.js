@@ -1,17 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  TextInput,
-  ScrollView,
-  Alert,
-  Modal,
-  FlatList,
-} from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, ScrollView, Alert, Modal, FlatList,} from 'react-native';
 import { styles, colors, spacing } from '../styles';
 import { Picker } from '@react-native-picker/picker';
-import { openDatabaseAsync } from 'expo-sqlite';
+import WorkoutService from '../utils/WorkoutService';
 
 export default function StartWorkout({ navigation, route }) {
   const { isPaidUser = false } = route.params || {};
@@ -31,8 +22,7 @@ export default function StartWorkout({ navigation, route }) {
 
   const loadExercises = async () => {
     try {
-      const db = await openDatabaseAsync('workout.db');
-      const rows = await db.getAllAsync('SELECT * FROM exercises;');
+      const rows = await WorkoutService.getAllExercises();
       setExercisesList(rows.map(ex => ({ label: ex.name, value: ex.id })));
     } catch (error) {
       console.error('Error loading exercises:', error);
@@ -41,21 +31,8 @@ export default function StartWorkout({ navigation, route }) {
 
   const loadRoutines = async () => {
     try {
-      const db = await openDatabaseAsync('workout.db');
-      const routineRows = await db.getAllAsync('SELECT * FROM routines;');
-      const routinesWithExercises = [];
-      
-      for (const routine of routineRows) {
-        const exRows = await db.getAllAsync(
-          `SELECT e.id, e.name, we.sets, we.reps, we.weight
-           FROM routine_exercises we
-           JOIN exercises e ON e.id = we.exerciseId
-           WHERE we.routineId = ?;`,
-          [routine.id]
-        );
-        routinesWithExercises.push({ ...routine, exercises: exRows });
-      }
-      setRoutines(routinesWithExercises);
+      const routinesData = await WorkoutService.getUserRoutines();
+      setRoutines(routinesData);
     } catch (error) {
       console.error('Error loading routines:', error);
     }
@@ -63,24 +40,8 @@ export default function StartWorkout({ navigation, route }) {
 
   const loadPremadeWorkouts = async () => {
     try {
-      const db = await openDatabaseAsync('workout.db');
-      // Premade workouts have IDs 1-5 based on PreMadeRoutines.json
-      const premadeRows = await db.getAllAsync(
-        'SELECT * FROM routines WHERE id <= 5;'
-      );
-      const premadeWithExercises = [];
-      
-      for (const premade of premadeRows) {
-        const exRows = await db.getAllAsync(
-          `SELECT e.id, e.name, we.sets, we.reps, we.weight
-           FROM routine_exercises we
-           JOIN exercises e ON e.id = we.exerciseId
-           WHERE we.routineId = ?;`,
-          [premade.id]
-        );
-        premadeWithExercises.push({ ...premade, exercises: exRows });
-      }
-      setPremadeWorkouts(premadeWithExercises);
+      const premadeData = await WorkoutService.getPremadeWorkouts();
+      setPremadeWorkouts(premadeData);
     } catch (error) {
       console.error('Error loading premade workouts:', error);
     }
@@ -176,22 +137,26 @@ export default function StartWorkout({ navigation, route }) {
     }
 
     try {
-      const db = await openDatabaseAsync('workout.db');
-      const result = await db.runAsync(
-        'INSERT INTO workout_history (name, date) VALUES (?, ?);',
-        [workoutName.trim(), new Date().toISOString()]
-      );
-
+      // Prepare exercises data
+      const exercisesData = [];
       for (const ex of exercises) {
         for (const set of ex.sets) {
           if (set.reps && set.weight) {
-            await db.runAsync(
-              'INSERT INTO workout_history_exercises (workoutId, exerciseId, sets, reps, weight) VALUES (?, ?, ?, ?, ?);',
-              [result.lastInsertRowId, ex.exerciseId, 1, parseInt(set.reps), parseFloat(set.weight)]
-            );
+            exercisesData.push({
+              exerciseId: ex.exerciseId,
+              sets: 1,
+              reps: parseInt(set.reps),
+              weight: parseFloat(set.weight)
+            });
           }
         }
       }
+
+      await WorkoutService.addWorkoutHistory({
+        name: workoutName.trim(),
+        date: new Date().toISOString(),
+        exercises: exercisesData
+      });
 
       Alert.alert('Success', 'Workout saved!', [
         { text: 'OK', onPress: () => navigation.goBack() }

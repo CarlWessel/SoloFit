@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, TextInput, ScrollView, Alert } from "react-native";
 import { styles, colors, spacing } from '../styles';
 import { Picker } from '@react-native-picker/picker';
-import { openDatabaseAsync } from 'expo-sqlite';
+import WorkoutService from '../utils/WorkoutService';
 
 export default function AddRoutine({ navigation }) {
   const [routineName, setRoutineName] = useState("");
@@ -16,8 +16,7 @@ export default function AddRoutine({ navigation }) {
 
   const loadExercises = async () => {
     try {
-      const db = await openDatabaseAsync('workout.db');
-      const rows = await db.getAllAsync('SELECT * FROM exercises;');
+      const rows = await WorkoutService.getAllExercises();
       setExercisesList(rows.map(ex => ({ label: ex.name, value: ex.id })));
     } catch (error) {
       console.error('Error loading exercises:', error);
@@ -104,31 +103,23 @@ export default function AddRoutine({ navigation }) {
     }
 
     try {
-      const db = await openDatabaseAsync('workout.db');
-      
-      // Insert the routine
-      const result = await db.runAsync(
-        'INSERT INTO routines (name) VALUES (?);',
-        [routineName.trim()]
-      );
-
-      const routineId = result.lastInsertRowId;
-
-      // Insert exercises for this routine
-      for (const ex of exercises) {
-        // Calculate total sets (only count sets with both reps and weight filled)
+      // Prepare exercises data
+      const exercisesData = exercises.map(ex => {
         const completeSets = ex.sets.filter(set => set.reps && set.weight);
+        const firstSet = completeSets[0];
         
-        if (completeSets.length > 0) {
-          // Take the first complete set's values
-          const firstSet = completeSets[0];
-          
-          await db.runAsync(
-            'INSERT INTO routine_exercises (routineId, exerciseId, sets, reps, weight) VALUES (?, ?, ?, ?, ?);',
-            [routineId, ex.exerciseId, completeSets.length, parseInt(firstSet.reps), parseFloat(firstSet.weight)]
-          );
-        }
-      }
+        return {
+          exerciseId: ex.exerciseId,
+          sets: completeSets.length,
+          reps: parseInt(firstSet.reps),
+          weight: parseFloat(firstSet.weight)
+        };
+      }).filter(ex => ex.sets > 0);
+
+      await WorkoutService.addRoutine({
+        name: routineName.trim(),
+        exercises: exercisesData
+      });
 
       Alert.alert('Success', 'Routine saved successfully!', [
         { text: 'OK', onPress: () => navigation.goBack() }

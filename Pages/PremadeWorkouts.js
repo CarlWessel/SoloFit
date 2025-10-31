@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, FlatList } from 'react-native';
 import { styles } from '../styles';
 import { MaterialIcons } from '@expo/vector-icons';
-import { openDatabaseAsync } from 'expo-sqlite';
+import WorkoutService from '../utils/WorkoutService';
 
 export default function PremadeWorkouts({ navigation }) {
   const [premadeWorkouts, setPremadeWorkouts] = useState([]);
@@ -13,25 +13,8 @@ export default function PremadeWorkouts({ navigation }) {
 
   const loadPremadeWorkouts = async () => {
     try {
-      const db = await openDatabaseAsync('workout.db');
-      // Premade workouts have IDs 1-5 based on PreMadeRoutines.json
-      const premadeRows = await db.getAllAsync(
-        'SELECT * FROM routines WHERE id <= 5;'
-      );
-      
-      const premadeWithExercises = [];
-      for (const premade of premadeRows) {
-        const exRows = await db.getAllAsync(
-          `SELECT e.name, we.sets, we.reps, we.weight
-           FROM routine_exercises we
-           JOIN exercises e ON e.id = we.exerciseId
-           WHERE we.routineId = ?;`,
-          [premade.id]
-        );
-        premadeWithExercises.push({ ...premade, exercises: exRows });
-      }
-      
-      setPremadeWorkouts(premadeWithExercises);
+      const premadeData = await WorkoutService.getPremadeWorkouts();
+      setPremadeWorkouts(premadeData);
     } catch (error) {
       console.error('Error loading premade workouts:', error);
     }

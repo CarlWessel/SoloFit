@@ -1,14 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  TextInput,
-  ScrollView,
-  Alert,
-} from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, ScrollView, Alert, } from 'react-native';
 import { styles, colors, spacing } from '../styles';
-import { openDatabaseAsync } from 'expo-sqlite';
+import WorkoutService from '../utils/WorkoutService';
 
 export default function UseWorkout({ navigation, route }) {
   const { workoutId, workoutName, isPremade = false } = route.params;
@@ -21,28 +14,23 @@ export default function UseWorkout({ navigation, route }) {
 
   const loadWorkoutExercises = async () => {
     try {
-      const db = await openDatabaseAsync('workout.db');
-      const exRows = await db.getAllAsync(
-        `SELECT e.id, e.name, we.sets, we.reps, we.weight
-         FROM routine_exercises we
-         JOIN exercises e ON e.id = we.exerciseId
-         WHERE we.routineId = ?;`,
-        [workoutId]
-      );
+      const routine = await WorkoutService.getRoutineById(workoutId);
+      
+      if (routine && routine.exercises) {
+        // Convert to format for display with sets array
+        const formattedExercises = routine.exercises.map((ex, idx) => ({
+          id: idx + 1,
+          exerciseId: ex.id,
+          exerciseName: ex.name,
+          sets: Array.from({ length: ex.sets }, (_, i) => ({
+            id: i + 1,
+            reps: ex.reps.toString(),
+            weight: ex.weight.toString(),
+          })),
+        }));
 
-      // Convert to format for display with sets array
-      const formattedExercises = exRows.map((ex, idx) => ({
-        id: idx + 1,
-        exerciseId: ex.id,
-        exerciseName: ex.name,
-        sets: Array.from({ length: ex.sets }, (_, i) => ({
-          id: i + 1,
-          reps: ex.reps.toString(),
-          weight: ex.weight.toString(),
-        })),
-      }));
-
-      setExercises(formattedExercises);
+        setExercises(formattedExercises);
+      }
     } catch (error) {
       console.error('Error loading workout exercises:', error);
     }
@@ -70,27 +58,26 @@ export default function UseWorkout({ navigation, route }) {
     }
 
     try {
-      const db = await openDatabaseAsync('workout.db');
-      
-      // Create a new workout history entry
-      const result = await db.runAsync(
-        'INSERT INTO workout_history (name, date) VALUES (?, ?);',
-        [workoutName, new Date(workoutDate).toISOString()]
-      );
-
-      const historyId = result.lastInsertRowId;
-
-      // Insert all exercises
+      // Prepare exercises data
+      const exercisesData = [];
       for (const ex of exercises) {
         for (const set of ex.sets) {
           if (set.reps && set.weight) {
-            await db.runAsync(
-              'INSERT INTO workout_history_exercises (workoutId, exerciseId, sets, reps, weight) VALUES (?, ?, ?, ?, ?);',
-              [historyId, ex.exerciseId, 1, parseInt(set.reps), parseFloat(set.weight)]
-            );
+            exercisesData.push({
+              exerciseId: ex.exerciseId,
+              sets: 1,
+              reps: parseInt(set.reps),
+              weight: parseFloat(set.weight)
+            });
           }
         }
       }
+
+      await WorkoutService.addWorkoutHistory({
+        name: workoutName,
+        date: new Date(workoutDate).toISOString(),
+        exercises: exercisesData
+      });
 
       Alert.alert('Success', 'Workout saved to history!', [
         { text: 'OK', onPress: () => navigation.navigate('Home') }

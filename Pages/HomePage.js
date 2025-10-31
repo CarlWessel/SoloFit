@@ -3,7 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Text, View, Alert, TouchableOpacity, ScrollView, Switch } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { styles, colors } from '../styles';
-import { openDatabaseAsync } from 'expo-sqlite';
+import WorkoutService from '../utils/WorkoutService';
 
 export default function HomePage({ navigation }) {
   const [isPaidUser, setIsPaidUser] = useState(true);
@@ -22,25 +22,9 @@ export default function HomePage({ navigation }) {
 
   const loadUserRoutines = async () => {
     try {
-      const db = await openDatabaseAsync('workout.db');
-      // Load user-created routines (ID > 5, since 1-5 are premade)
-      const routineRows = await db.getAllAsync(
-        'SELECT * FROM routines WHERE id > 5 ORDER BY id DESC LIMIT 3;'
-      );
-      
-      const routinesWithExercises = [];
-      for (const routine of routineRows) {
-        const exRows = await db.getAllAsync(
-          `SELECT e.name, we.sets, we.reps, we.weight
-           FROM routine_exercises we
-           JOIN exercises e ON e.id = we.exerciseId
-           WHERE we.routineId = ?;`,
-          [routine.id]
-        );
-        routinesWithExercises.push({ ...routine, exercises: exRows });
-      }
-      
-      setUserRoutines(routinesWithExercises);
+      const routinesData = await WorkoutService.getUserRoutines();
+      // Limit to 3 most recent
+      setUserRoutines(routinesData.slice(0, 3));
     } catch (error) {
       console.error('Error loading user routines:', error);
     }

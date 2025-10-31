@@ -13,7 +13,7 @@ export async function DBSetup() {
     );
   `);
 
-  // Create routines table (includes both user routines and premade)
+  // Create routines table (AUTOINCREMENT for user routines)
   await db.execAsync(`
     CREATE TABLE IF NOT EXISTS routines (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -70,22 +70,28 @@ export async function DBSetup() {
     }
   }
 
-  // Insert premade routines if empty
+  // Insert premade routines if empty (without explicit IDs - let AUTOINCREMENT handle it)
   const [{ count: wCount }] = await db.getAllAsync(
     'SELECT COUNT(*) as count FROM routines;'
   );
 
   if (wCount === 0) {
-    for (const routine of preMadeRoutines) {
-      await db.runAsync('INSERT INTO routines (id, name) VALUES (?, ?);', [
-        routine.routineId,
-        routine.name,
-      ]);
-
+    // Sort by routineId
+    const sortedRoutines = [...preMadeRoutines].sort((a, b) => a.routineId - b.routineId);
+    
+    for (const routine of sortedRoutines) {
+      // Insert without specifying ID - AUTOINCREMENT will handle it
+      const result = await db.runAsync(
+        'INSERT INTO routines (name) VALUES (?);',
+        [routine.name]
+      );
+      
+      const insertedId = result.lastInsertRowId;
+      
       for (const ex of routine.exercises) {
         await db.runAsync(
           'INSERT INTO routine_exercises (routineId, exerciseId, sets, reps, weight) VALUES (?, ?, ?, ?, ?);',
-          [routine.routineId, ex.exerciseId, ex.sets, ex.reps, ex.weight]
+          [insertedId, ex.exerciseId, ex.sets, ex.reps, ex.weight]
         );
       }
     }
