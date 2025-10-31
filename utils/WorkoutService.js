@@ -1,47 +1,16 @@
 import { openDatabaseAsync } from 'expo-sqlite';
 
-let db = null;
-
-async function getDatabase() {
-  if (!db) {
-    db = await openDatabaseAsync('workout.db');
-  }
-  return db;
-}
-
 export default class WorkoutService {
-  // Initialize database connection
-  static async getDB() {
-    return await getDatabase();
-  }
 
-  // ============ EXERCISES ============
-  static async getAllExercises() {
-    const db = await this.getDB();
-    return await db.getAllAsync('SELECT * FROM exercises;');
-  }
+  static async addWorkout({ startDateTime, endDateTime, notes = '', exercises = [] }) {
+    const db = await openDatabaseAsync('workout.db');
 
-  static async addExercise(name) {
-    const db = await this.getDB();
     const result = await db.runAsync(
-      'INSERT INTO exercises (name) VALUES (?);',
-      [name]
+      `INSERT INTO workout (startDateTime, endDateTime, notes) VALUES (?, ?, ?);`,
+      [startDateTime, endDateTime, notes]
     );
-    return result.lastInsertRowId;
-  }
+    const workoutId = result.lastInsertRowId;
 
-  // ============ ROUTINES ============
-  static async addRoutine({ name, exercises = [] }) {
-    const db = await this.getDB();
-    
-    // Insert routine (let AUTOINCREMENT handle the ID)
-    const result = await db.runAsync(
-      'INSERT INTO routines (name) VALUES (?);',
-      [name]
-    );
-    
-    const routineId = result.lastInsertRowId;
-    // Insert exercises for this routine
     for (const ex of exercises) {
       await db.runAsync(
         'INSERT INTO routine_exercises (routineId, exerciseId, sets, reps, weight) VALUES (?, ?, ?, ?, ?);',
@@ -74,6 +43,7 @@ export default class WorkoutService {
     const routines = await db.getAllAsync(
       'SELECT * FROM routines WHERE id > 5 ORDER BY id DESC;'
     );
+    const workouts = await db.getAllAsync(`SELECT * FROM workout ORDER BY datetime(startDateTime) DESC;`);
     
     for (const routine of routines) {
       routine.exercises = await db.getAllAsync(

@@ -34,24 +34,26 @@ export async function DBSetup() {
     );
   `);
 
-  // Create workout_history table
+  // Create workout table
   await db.execAsync(`
-    CREATE TABLE IF NOT EXISTS workout_history (
+    CREATE TABLE IF NOT EXISTS workout (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      date TEXT NOT NULL
+      startDateTime TEXT NOT NULL,
+      endDateTime TEXT NOT NULL,
+      notes TEXT
     );
   `);
 
-  // Create workout_history_exercises table
+  // Create workout_exercises table
   await db.execAsync(`
-    CREATE TABLE IF NOT EXISTS workout_history_exercises (
+    CREATE TABLE IF NOT EXISTS workout_exercises (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
       workoutId INTEGER NOT NULL,
       exerciseId INTEGER NOT NULL,
       sets INTEGER NOT NULL,
       reps INTEGER NOT NULL,
       weight REAL NOT NULL,
-      FOREIGN KEY (workoutId) REFERENCES workout_history(id),
+      FOREIGN KEY (workoutId) REFERENCES workout(id),
       FOREIGN KEY (exerciseId) REFERENCES exercises(id)
     );
   `);
@@ -76,22 +78,15 @@ export async function DBSetup() {
   );
 
   if (wCount === 0) {
-    // Sort by routineId
-    const sortedRoutines = [...preMadeRoutines].sort((a, b) => a.routineId - b.routineId);
-    
-    for (const routine of sortedRoutines) {
-      // Insert without specifying ID - AUTOINCREMENT will handle it
-      const result = await db.runAsync(
-        'INSERT INTO routines (name) VALUES (?);',
-        [routine.name]
-      );
-      
-      const insertedId = result.lastInsertRowId;
-      
+    for (const routine of preMadeRoutines) {
+      await db.runAsync('INSERT INTO routines (name) VALUES (?);', [
+        routine.name
+      ]);
+
       for (const ex of routine.exercises) {
         await db.runAsync(
           'INSERT INTO routine_exercises (routineId, exerciseId, sets, reps, weight) VALUES (?, ?, ?, ?, ?);',
-          [insertedId, ex.exerciseId, ex.sets, ex.reps, ex.weight]
+          [routine.routineId, ex.exerciseId, ex.sets, ex.reps, ex.weight]
         );
       }
     }
