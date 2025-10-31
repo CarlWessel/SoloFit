@@ -11,10 +11,12 @@ import { DBSetup } from './utils/DBSetup';
 // Pages
 import HomePage from './Pages/HomePage';
 import AddRoutine from './Pages/AddRoutine';
-import AddExercises from './Pages/AddExercises';
+import StartWorkout from './Pages/StartWorkout';
 import RoutineList from './Pages/RoutineList';
 import WorkoutHistory from './Pages/WorkoutHistory';
-import Example, { GPTShowEcercisesExample } from './Pages/GPTShowExercisesExample';
+import PremadeRoutines from './Pages/PremadeRoutines';
+import UseWorkout from './Pages/UseWorkout';
+import Example from './Pages/GPTShowExercisesExample';
 
 const Stack = createNativeStackNavigator();
 
@@ -57,9 +59,11 @@ export default function App() {
       >
         <Stack.Screen name="Home" component={HomePage} />
         <Stack.Screen name="AddRoutine" component={AddRoutine} />
-        <Stack.Screen name="AddExercises" component={AddExercises} />
+        <Stack.Screen name="StartWorkout" component={StartWorkout} />
         <Stack.Screen name="RoutineList" component={RoutineList} />
         <Stack.Screen name="WorkoutHistory" component={WorkoutHistory} />
+        <Stack.Screen name="PremadeRoutines" component={PremadeRoutines} />
+        <Stack.Screen name="UseWorkout" component={UseWorkout} />
         <Stack.Screen name="GPTShowExercisesExample" component={Example} />
       </Stack.Navigator>
     </NavigationContainer>

@@ -1,12 +1,11 @@
 import { openDatabaseAsync } from 'expo-sqlite';
 import exercises from '../data/exercises.json';
 import preMadeRoutines from '../data/PreMadeRoutines.json';
-import workoutHistorySample from '../data/WorkoutHistorySample.json';
 
 export async function DBSetup() {
   const db = await openDatabaseAsync('workout.db');
 
-  // Create tables
+  // Create exercises tables
   await db.execAsync(`
     CREATE TABLE IF NOT EXISTS exercises (
       id INTEGER PRIMARY KEY NOT NULL,
@@ -14,13 +13,15 @@ export async function DBSetup() {
     );
   `);
 
+  // Create routines table (AUTOINCREMENT for user routines)
   await db.execAsync(`
     CREATE TABLE IF NOT EXISTS routines (
-      id INTEGER PRIMARY KEY NOT NULL,
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL
     );
   `);
 
+  // Create routine_exercises table
   await db.execAsync(`
     CREATE TABLE IF NOT EXISTS routine_exercises (
       routineId INTEGER NOT NULL,
@@ -33,6 +34,7 @@ export async function DBSetup() {
     );
   `);
 
+  // Create workout table
   await db.execAsync(`
     CREATE TABLE IF NOT EXISTS workout (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -42,6 +44,7 @@ export async function DBSetup() {
     );
   `);
 
+  // Create workout_exercises table
   await db.execAsync(`
     CREATE TABLE IF NOT EXISTS workout_exercises (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -69,16 +72,15 @@ export async function DBSetup() {
     }
   }
 
-  // Insert premade routines if empty
+  // Insert premade routines if empty (without explicit IDs - let AUTOINCREMENT handle it)
   const [{ count: wCount }] = await db.getAllAsync(
     'SELECT COUNT(*) as count FROM routines;'
   );
 
   if (wCount === 0) {
     for (const routine of preMadeRoutines) {
-      await db.runAsync('INSERT INTO routines (id, name) VALUES (?, ?);', [
-        routine.routineId,
-        routine.name,
+      await db.runAsync('INSERT INTO routines (name) VALUES (?);', [
+        routine.name
       ]);
 
       for (const ex of routine.exercises) {

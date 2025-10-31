@@ -1,9 +1,9 @@
-import { openDatabaseAsync } from 'expo-sqlite';
+import { DatabaseManager } from '../utils/DatabaseManager';
 
 export default class WorkoutService {
 
-  static async addWorkout({ startDateTime, endDateTime, notes = '', exercises = [] }) {
-    const db = await openDatabaseAsync('workout.db');
+  static async addWorkout({ startDateTime, endDateTime, exercises = [], notes = '' }) {
+    const db = await DatabaseManager.getDB();
 
     const result = await db.runAsync(
       `INSERT INTO workout (startDateTime, endDateTime, notes) VALUES (?, ?, ?);`,
@@ -22,7 +22,7 @@ export default class WorkoutService {
   }
 
   static async getWorkoutHistory() {
-    const db = await openDatabaseAsync('workout.db');
+    const db = await DatabaseManager.getDB();
 
     const workouts = await db.getAllAsync(`SELECT * FROM workout ORDER BY datetime(startDateTime) DESC;`);
 
@@ -40,7 +40,7 @@ export default class WorkoutService {
   }
 
   static async editWorkout(workoutId, { startDateTime, endDateTime, notes = '', exercises = [] }) {
-    const db = await openDatabaseAsync('workout.db');
+    const db = await DatabaseManager.getDB();
 
     // Update workout details
     await db.runAsync(
@@ -61,7 +61,7 @@ export default class WorkoutService {
   }
 
   static async deleteWorkout(id) {
-    const db = await openDatabaseAsync('workout.db');
+    const db = await DatabaseManager.getDB();
     await db.runAsync(`DELETE FROM workout_exercises WHERE workoutId = ?;`, [id]);
     await db.runAsync(`DELETE FROM workout WHERE id = ?;`, [id]);
   }
