@@ -1,4 +1,4 @@
- import { DatabaseManager } from '../utils/DatabaseManager';
+import { DatabaseManager } from '../utils/DatabaseManager';
 
 export default class RoutineService {
 
@@ -6,9 +6,9 @@ export default class RoutineService {
   static async addRoutine({ name, exercises = [] }) {
     const db = await DatabaseManager.getDB();
     
-    // Insert routine (let AUTOINCREMENT handle the ID)
+    // Insert routine (isPremade defaults to 0 for user routines)
     const result = await db.runAsync(
-      'INSERT INTO routines (name) VALUES (?);',
+      'INSERT INTO routines (name, isPremade) VALUES (?, 0);',
       [name]
     );
     
@@ -42,9 +42,9 @@ export default class RoutineService {
 
   static async getUserRoutines() {
     const db = await DatabaseManager.getDB();
-    // User routines have ID > 5 (premade are 1-5)
+    // User routines have isPremade = 0
     const routines = await db.getAllAsync(
-      'SELECT * FROM routines WHERE id > 5 ORDER BY id DESC;'
+      'SELECT * FROM routines WHERE isPremade = 0 ORDER BY id DESC;'
     );
     
     for (const routine of routines) {
@@ -59,7 +59,7 @@ export default class RoutineService {
     
     return routines;
   }
-
+  
   static async getRoutineById(routineId) {
     const db = await DatabaseManager.getDB();
     const [routine] = await db.getAllAsync(
@@ -82,6 +82,17 @@ export default class RoutineService {
 
   static async deleteRoutine(id) {
     const db = await DatabaseManager.getDB();
+    
+    // Optional: Prevent deleting premade routines
+    const [routine] = await db.getAllAsync(
+      'SELECT isPremade FROM routines WHERE id = ?;',
+      [id]
+    );
+    
+    if (routine && routine.isPremade === 1) {
+      throw new Error('Cannot delete premade routines');
+    }
+    
     await db.runAsync('DELETE FROM routine_exercises WHERE routineId = ?;', [id]);
     await db.runAsync('DELETE FROM routines WHERE id = ?;', [id]);
   }
@@ -89,9 +100,9 @@ export default class RoutineService {
   // ============ Premade Routine ============
   static async getPremadeRoutines() {
     const db = await DatabaseManager.getDB();
-    // Premade routines have IDs 1-5
+    // Premade routines have isPremade = 1
     const premades = await db.getAllAsync(
-      'SELECT * FROM routines WHERE id <= 5;'
+      'SELECT * FROM routines WHERE isPremade = 1;'
     );
     
     for (const premade of premades) {

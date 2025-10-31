@@ -12,12 +12,13 @@ export async function DBSetup() {
       name TEXT NOT NULL
     );
   `);
-
-  // Create routines table (AUTOINCREMENT for user routines)
+  
+  // Create routines table with isPremade flag
   await db.execAsync(`
     CREATE TABLE IF NOT EXISTS routines (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL
+      name TEXT NOT NULL,
+      isPremade INTEGER NOT NULL DEFAULT 0
     );
   `);
 
@@ -71,22 +72,28 @@ export async function DBSetup() {
       ]);
     }
   }
-
-  // Insert premade routines if empty (without explicit IDs - let AUTOINCREMENT handle it)
+  
+  // Insert premade routines if empty
   const [{ count: wCount }] = await db.getAllAsync(
     'SELECT COUNT(*) as count FROM routines;'
   );
 
   if (wCount === 0) {
     for (const routine of preMadeRoutines) {
-      await db.runAsync('INSERT INTO routines (name) VALUES (?);', [
-        routine.name
-      ]);
-
+      // Insert the routine with isPremade = 1
+      const result = await db.runAsync(
+        'INSERT INTO routines (name, isPremade) VALUES (?, 1);',
+        [routine.name]
+      );
+      
+      // Use the lastInsertRowId (the actual ID assigned by SQLite)
+      const actualRoutineId = result.lastInsertRowId;
+      
+      // Now insert exercises using the ACTUAL routine ID
       for (const ex of routine.exercises) {
         await db.runAsync(
           'INSERT INTO routine_exercises (routineId, exerciseId, sets, reps, weight) VALUES (?, ?, ?, ?, ?);',
-          [routine.routineId, ex.exerciseId, ex.sets, ex.reps, ex.weight]
+          [actualRoutineId, ex.exerciseId, ex.sets, ex.reps, ex.weight]
         );
       }
     }
