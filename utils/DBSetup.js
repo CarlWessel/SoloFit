@@ -1,9 +1,9 @@
-import { openDatabaseAsync } from 'expo-sqlite';
+import { DatabaseManager } from './DatabaseManager';
 import exercises from '../data/exercises.json';
 import preMadeRoutines from '../data/PreMadeRoutines.json';
 
 export async function DBSetup() {
-  const db = await openDatabaseAsync('workout.db');
+  const db = await DatabaseManager.getDB();
 
   // Create exercises tables
   await db.execAsync(`
