@@ -6,12 +6,6 @@
 20251030 Dot updates
 Stuff for discussing at the meeting or improvment:
 1. How should sets work (it's doing very wonky stuff for the moment)
-  - it's always one set for an entry for the moment
-  - I suggest for each entry we have a set, a rep and a weight adn when displaying we'll combine entries for the same exercise
-    Something like 
-    Pull up - 2 sets × 8 reps @ 50lb
-              3 sets × 6 reps @ 80lb
-
 2. Do we want a workout name or just save the datetime
 3. For the number input, the keyboard will disappear after I click any thing on the keyboard
 4. For premade routine, I suggest having a bool like isPremade in the db instead of hardcode the id limit

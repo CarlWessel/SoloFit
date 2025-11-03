@@ -4,9 +4,18 @@ export const DatabaseManager = {
   db: null,
 
   async getDB() {
-    if (!this.db) {
-      this.db = await openDatabaseAsync('workout.db');
+    if (this.db) {
+      try {        
+          // check if connection still valid 
+          await this.db.getFirstAsync('SELECT * FROM exercises;');
+          return this.db;    
+      } catch (e) {
+        this.db = null; // force reopen
+      }
     }
+
+    // Open DB if we don't have a valid handle
+    this.db = await openDatabaseAsync('workout.db');
     return this.db;
   },
 

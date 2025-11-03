@@ -104,21 +104,21 @@ export default function AddRoutine({ navigation }) {
     }
 
     try {
-      // Prepare exercises data
-      const exercisesData = exercises.map(ex => {
-        const completeSets = ex.sets.filter(set => set.reps && set.weight);
-        const firstSet = completeSets[0];
-        
-        return {
-          exerciseId: ex.exerciseId,
-          sets: completeSets.length,
-          reps: parseInt(firstSet.reps),
-          weight: parseFloat(firstSet.weight)
-        };
-      }).filter(ex => ex.sets > 0);
+      // Prepare exercises data in the new structure
+      const exercisesData = exercises.map(ex => ({
+        exerciseId: ex.exerciseId,
+        sets: ex.sets
+          .filter(set => set.reps && set.weight)
+          .map((set, idx) => ({
+            setNumber: idx + 1,
+            reps: parseInt(set.reps),
+            weight: parseFloat(set.weight),
+          })),
+      }));
 
       await RoutineService.addRoutine({
         name: routineName.trim(),
+        isPremade: 0,
         exercises: exercisesData
       });
 

@@ -18,17 +18,16 @@ export default function UseWorkout({ navigation, route }) {
       const routine = await RoutineService.getRoutineById(workoutId);
       
       if (routine && routine.exercises) {
-        // Convert to format for display with sets array
         const formattedExercises = routine.exercises.map((ex, idx) => ({
-          id: idx + 1,
-          exerciseId: ex.id,
-          exerciseName: ex.name,
-          sets: Array.from({ length: ex.sets }, (_, i) => ({
-            id: i + 1,
-            reps: ex.reps.toString(),
-            weight: ex.weight.toString(),
-          })),
-        }));
+        id: idx + 1,
+        exerciseId: ex.id,
+        exerciseName: ex.name,
+        sets: ex.sets.map((s) => ({
+          id: s.setNumber,
+          reps: s.reps.toString(),
+          weight: s.weight.toString(),
+        })),
+      }));
 
         setExercises(formattedExercises);
       }
@@ -60,19 +59,16 @@ export default function UseWorkout({ navigation, route }) {
 
     try {
       // Prepare exercises data
-      const exercisesData = [];
-      for (const ex of exercises) {
-        for (const set of ex.sets) {
-          if (set.reps && set.weight) {
-            exercisesData.push({
-              exerciseId: ex.exerciseId,
-              sets: 1,
-              reps: parseInt(set.reps),
-              weight: parseFloat(set.weight)
-            });
-          }
-        }
-      }
+      const exercisesData = exercises.map((ex) => ({
+        exerciseId: ex.id,
+        sets: ex.sets
+          .filter((s) => s.reps && s.weight)
+          .map((s) => ({
+            setNumber: s.id,
+            reps: parseInt(s.reps),
+            weight: parseFloat(s.weight)
+          })),
+      }));
 
       await WorkoutService.addWorkout({
         // question: do we want a name for workouthistory
@@ -83,7 +79,7 @@ export default function UseWorkout({ navigation, route }) {
         startDateTime: new Date().toISOString().slice(0, 16),
         endDateTime: new Date().toISOString().slice(0, 16),
         exercises: exercisesData,
-        notes: "TODO: Add UI for notes"
+        notes: "TODO: Add UI for notes and workout name"
       });
 
       Alert.alert('Success', 'Workout saved to history!', [

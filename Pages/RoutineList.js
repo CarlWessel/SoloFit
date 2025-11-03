@@ -62,12 +62,17 @@ export default function RoutineList({ navigation }) {
     <View style={styles.listItem}>
       <Text style={styles.listHeader}>{item.name}</Text>
 
-      {item.exercises.map((ex, index) => (
-        <Text key={index} style={styles.listText}>
-          {/* this format could be improved, the text is a little bit small for the moment */}
-          {ex.name} — {ex.sets} sets × {ex.reps} reps @ {ex.weight} lb
-        </Text>
+      {item.exercises.map((ex) => (
+        <View key={ex.exerciseId} style={{ marginVertical: 4 }}>
+          <Text style={styles.listText}>{ex.name}</Text>
+          {ex.sets.map((set) => (
+            <Text key={set.setNumber} style={{ ...styles.listText, marginLeft: 12 }}>
+              Set {set.setNumber}: {set.reps} reps @ {set.weight} lb
+            </Text>
+          ))}
+        </View>
       ))}
+
       <View style={styles.buttonRow}>
         <TouchableOpacity style={styles.editButton} onPress={() => editRoutine(item.id)}>
           <Text style={styles.listText}>Edit</Text>
@@ -84,11 +89,11 @@ export default function RoutineList({ navigation }) {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.headerLeft} onPress={() => navigation.goBack()}>
-          <MaterialIcons name="arrow-back-ios-new" style={styles.headerText}/>
+          <MaterialIcons name="arrow-back-ios-new" style={styles.headerText} />
         </TouchableOpacity>
         <Text style={styles.headerText}>Routine List</Text>
         <TouchableOpacity style={styles.headerRight} onPress={() => navigation.navigate('AddRoutine')}>
-          <MaterialIcons name="add" style={[styles.headerText, {fontSize: 36}]}/>
+          <MaterialIcons name="add" style={[styles.headerText, { fontSize: 36 }]} />
         </TouchableOpacity>
       </View>
 
@@ -107,7 +112,7 @@ export default function RoutineList({ navigation }) {
             data={routines}
             keyExtractor={(item) => item.id.toString()}
             renderItem={renderListItem}
-            contentContainerStyle={{ paddingBottom: 30}}
+            contentContainerStyle={{ paddingBottom: 30 }}
           />
         )}
       </View>
