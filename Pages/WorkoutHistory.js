@@ -70,7 +70,7 @@ export default function WorkoutHistory({ navigation }) {
         </View>
       ))}      
 
-      {item.notes ? <Text style={styles.listTextHighLight}>Notes: {item.notes}</Text> : null}
+      {item.notes ? <Text style={styles.listTextHighlight}>Notes: {item.notes}</Text> : null}
 
       {(today - new Date(item.endDateTime) <= 14 * 24 * 60 * 60 * 1000) && (
         <View style={styles.buttonRow}>

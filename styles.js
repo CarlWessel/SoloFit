@@ -106,7 +106,7 @@ export const styles = StyleSheet.create({
         color: colors.textLight,
         fontSize: 18,
     },
-    listTextHighLight: {
+    listTextHighlight: {
         color: colors.accent,
         fontSize: 18,
     },
