@@ -98,17 +98,17 @@ export const styles = StyleSheet.create({
     },
     listSubheader: {
         color: colors.accent,
-        fontSize: 16,
+        fontSize: 19,
         paddingBottom: spacing.xs,
         fontWeight: '500'
     },
     listText: {
         color: colors.textLight,
-        fontSize: 15,
+        fontSize: 18,
     },
-    listTextHight: {
+    listTextHighLight: {
         color: colors.accent,
-        fontSize: 15,
+        fontSize: 18,
     },
     buttonRow: {
         flexDirection: 'row',

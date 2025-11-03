@@ -34,11 +34,23 @@ export default function PremadeRoutines({ navigation }) {
       onPress={() => startWorkout(item)}
     >
       <Text style={styles.listHeader}>{item.name}</Text>
-      {item.exercises.map((ex, index) => (
-        <Text key={index} style={styles.listText}>
-          {ex.name} — {ex.sets} sets × {ex.reps} reps @ {ex.weight} lb
-        </Text>
+
+      {/* Display exercises and their sets */}
+      {/* Consider fold the details in some ways */}
+      {item.exercises.map((ex) => (
+        <View key={ex.exerciseId} style={{ marginVertical: 4 }}>
+          <Text style={styles.listText}>{ex.name}</Text>
+          {ex.sets.map((set) => (
+            <Text
+              key={set.setNumber}
+              style={{ ...styles.listText, marginLeft: 32 }}
+            >
+              Set {set.setNumber} - {set.reps} reps @ {set.weight} lb
+            </Text>
+          ))}
+        </View>
       ))}
+
       <View style={{ marginTop: 10, alignItems: 'flex-end' }}>
         <Text style={[styles.text, { color: '#4CAF50', fontSize: 14 }]}>
           Tap to start →
@@ -56,11 +68,11 @@ export default function PremadeRoutines({ navigation }) {
         >
           <MaterialIcons name="arrow-back-ios-new" style={styles.headerText} />
         </TouchableOpacity>
-        <Text style={styles.headerText}>Premade routines</Text>
+        <Text style={styles.headerText}>Premade Routines</Text>
         <View style={styles.headerRight} />
       </View>
 
-      <View style={[styles.main]}>
+      <View style={styles.main}>
         <FlatList
           style={styles.list}
           data={premadeRoutines}

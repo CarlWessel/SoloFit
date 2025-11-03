@@ -68,14 +68,14 @@ export default function StartWorkout({ navigation, route }) {
   const addExerciseFromSource = (sourceExercise) => {
     const newExercise = {
       id: nextExerciseID,
-      exerciseId: sourceExercise.id,
-      exerciseName: sourceExercise.name,
-      sets: Array.from({ length: sourceExercise.sets }, (_, i) => ({
-        id: i + 1,
-        reps: sourceExercise.reps.toString(),
-        weight: sourceExercise.weight.toString(),
+      exerciseId: sourceExercise.exerciseId,
+      sets: sourceExercise.sets.map((s) => ({
+        id: s.setNumber.toString(),
+        reps: s.reps.toString(),
+        weight: s.weight.toString(),
       })),
     };
+
     setNextExerciseID(nextExerciseID + 1);
     setExercises(prev => [...prev, newExercise]);
     setShowAddModal(false);
@@ -140,19 +140,16 @@ export default function StartWorkout({ navigation, route }) {
 
     try {
       // Prepare exercises data
-      const exercisesData = [];
-      for (const ex of exercises) {
-        for (const set of ex.sets) {
-          if (set.reps && set.weight) {
-            exercisesData.push({
-              exerciseId: ex.exerciseId,
-              sets: 1,
-              reps: parseInt(set.reps),
-              weight: parseFloat(set.weight)
-            });
-          }
-        }
-      }
+      const exercisesData = exercises.map((ex) => ({
+        exerciseId: ex.exerciseId,
+        sets: ex.sets
+          .filter((set) => set.reps && set.weight)
+          .map((set, idx) => ({
+            setNumber: idx + 1,            // set number starts at 1
+            reps: parseInt(set.reps),
+            weight: parseFloat(set.weight),
+          })),
+      })); 
 
       await WorkoutService.addWorkout({
         // question: do we want a name for workouthistory
@@ -163,7 +160,7 @@ export default function StartWorkout({ navigation, route }) {
         startDateTime: new Date().toISOString().slice(0, 16),
         endDateTime: new Date().toISOString().slice(0, 16),
         exercises: exercisesData,
-        notes: "TODO: Add UI for notes"
+        notes: "TODO: Add UI for notes and workout name"
       });
 
       Alert.alert('Success', 'Workout saved!', [
@@ -396,9 +393,9 @@ export default function StartWorkout({ navigation, route }) {
                   <Text style={[styles.text, { color: colors.accent, marginBottom: 5 }]}>
                     {routine.name}
                   </Text>
-                  {routine.exercises.map((ex, idx) => (
+                  {routine.exercises.map((ex) => (
                     <TouchableOpacity
-                      key={idx}
+                      key={ex.exerciseId}
                       style={{
                         backgroundColor: colors.primary,
                         padding: 10,
@@ -408,7 +405,7 @@ export default function StartWorkout({ navigation, route }) {
                       onPress={() => addExerciseFromSource(ex)}
                     >
                       <Text style={styles.text}>
-                        {ex.name} - {ex.sets}×{ex.reps} @ {ex.weight}lb
+                        {ex.name} - {ex.sets.map(s => `${s.reps} @${s.weight}lb`).join(', ')}
                       </Text>
                     </TouchableOpacity>
                   ))}
@@ -423,9 +420,9 @@ export default function StartWorkout({ navigation, route }) {
                   <Text style={[styles.text, { color: colors.accent, marginBottom: 5 }]}>
                     {premade.name}
                   </Text>
-                  {premade.exercises.map((ex, idx) => (
+                  {premade.exercises.map((ex) => (
                     <TouchableOpacity
-                      key={idx}
+                      key={ex.exerciseId}
                       style={{
                         backgroundColor: colors.primary,
                         padding: 10,
@@ -435,7 +432,7 @@ export default function StartWorkout({ navigation, route }) {
                       onPress={() => addExerciseFromSource(ex)}
                     >
                       <Text style={styles.text}>
-                        {ex.name} - {ex.sets}×{ex.reps} @ {ex.weight}lb
+                        {ex.name} - {ex.sets.map(s => `${s.reps} @ ${s.weight}lb`).join(', ')}
                       </Text>
                     </TouchableOpacity>
                   ))}

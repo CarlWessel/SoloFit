@@ -25,13 +25,23 @@ export async function DBSetup() {
   // Create routine_exercises table
   await db.execAsync(`
     CREATE TABLE IF NOT EXISTS routine_exercises (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
       routineId INTEGER NOT NULL,
       exerciseId INTEGER NOT NULL,
-      sets INTEGER NOT NULL,
-      reps INTEGER NOT NULL,
-      weight REAL NOT NULL,
       FOREIGN KEY (routineId) REFERENCES routines(id),
       FOREIGN KEY (exerciseId) REFERENCES exercises(id)
+    );
+  `);
+
+  // Create routine_exercises_sets table
+  await db.execAsync(`
+    CREATE TABLE IF NOT EXISTS routine_exercise_sets (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      routineExerciseId INTEGER NOT NULL,
+      setNumber INTEGER NOT NULL,
+      reps INTEGER NOT NULL,
+      weight REAL NOT NULL,
+      FOREIGN KEY (routineExerciseId) REFERENCES routine_exercises(id)
     );
   `);
 
@@ -51,50 +61,58 @@ export async function DBSetup() {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       workoutId INTEGER NOT NULL,
       exerciseId INTEGER NOT NULL,
-      sets INTEGER NOT NULL,
-      reps INTEGER NOT NULL,
-      weight REAL NOT NULL,
       FOREIGN KEY (workoutId) REFERENCES workout(id),
       FOREIGN KEY (exerciseId) REFERENCES exercises(id)
     );
   `);
 
-  // Insert exercises if table empty
-  const [{ count: exCount }] = await db.getAllAsync(
-    'SELECT COUNT(*) as count FROM exercises;'
-  );
+    // Create workout_exercises_sets table
+    await db.execAsync(`
+    CREATE TABLE IF NOT EXISTS workout_exercises_sets (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      workoutExerciseId INTEGER NOT NULL,
+      setNumber INTEGER NOT NULL,
+      reps INTEGER NOT NULL,
+      weight REAL NOT NULL,
+      FOREIGN KEY (workoutExerciseId) REFERENCES workout_exercises(id)
+    );
+  `);
 
+  // Insert exercises if table empty
+  const [{ count: exCount }] = await db.getAllAsync('SELECT COUNT(*) as count FROM exercises;');
   if (exCount === 0) {
     for (const ex of exercises) {
-      await db.runAsync('INSERT INTO exercises (id, name) VALUES (?, ?);', [
-        ex.id,
-        ex.name,
-      ]);
+      await db.runAsync('INSERT INTO exercises (id, name) VALUES (?, ?);', [ex.id, ex.name]);
     }
   }
-  
-  // Insert premade routines if empty
-  const [{ count: wCount }] = await db.getAllAsync(
-    'SELECT COUNT(*) as count FROM routines;'
-  );
 
-  if (wCount === 0) {
+  // Insert premade routines if empty
+  const [{ count: rCount }] = await db.getAllAsync('SELECT COUNT(*) as count FROM routines;');
+  if (rCount === 0) {
     for (const routine of preMadeRoutines) {
-      // Insert the routine with isPremade = 1
       const result = await db.runAsync(
         'INSERT INTO routines (name, isPremade) VALUES (?, 1);',
         [routine.name]
       );
-      
-      // Use the lastInsertRowId (the actual ID assigned by SQLite)
-      const actualRoutineId = result.lastInsertRowId;
-      
-      // Now insert exercises using the ACTUAL routine ID
+      const routineId = result.lastInsertRowId;
+
       for (const ex of routine.exercises) {
-        await db.runAsync(
-          'INSERT INTO routine_exercises (routineId, exerciseId, sets, reps, weight) VALUES (?, ?, ?, ?, ?);',
-          [actualRoutineId, ex.exerciseId, ex.sets, ex.reps, ex.weight]
+        // Insert the exercise mapping
+        const exResult = await db.runAsync(
+          'INSERT INTO routine_exercises (routineId, exerciseId) VALUES (?, ?);',
+          [routineId, ex.exerciseId]
         );
+        const routineExerciseId = exResult.lastInsertRowId;
+
+        // Insert each set with setNumber
+        let setNumber = 1;
+        for (const set of ex.Sets) {
+          await db.runAsync(
+            'INSERT INTO routine_exercise_sets (routineExerciseId, setNumber, reps, weight) VALUES (?, ?, ?, ?);',
+            [routineExerciseId, setNumber, set.reps, set.weight]
+          );
+          setNumber++;
+        }
       }
     }
   }
