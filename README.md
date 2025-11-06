@@ -1,7 +1,8 @@
-20251031 Trish updates
-- Did #4 in Dot's updates, pls check. Thanks Dot for handling the big merge.
-  > Made a fix as well. When inserting premade routines, the code was using the routineId from the JSON file (1-5) to link exercises, but SQLite was assigning different auto-generated IDs to the actual routines. Fix was just capturing SQLite's lastInsertRowId after inserting each routine and use that actual ID (instead of the JSON's routineId) when inserting the routine's exercises, ensuring exercises are correctly linked to their parent routine.
-  > TLDR: User-made routines, when used, somehow was appended to a premade routine's exercises. So when you went to Workout History, it had this whole list of exercises you didn't even do, with the user-made routine exercises you actually did do afterwards.
+20251106 Trish Updates:
+1. Fixed DB bug, please test.
+- Still going to clean this uop. I moved table creation to DatabaseManager to have a single source of truth and a guaranteed initialization order, making it thread-safe. I realize this blurs the line a bit between DBSetup and DatabaseManager, so that's something for later.
+2. If screen greys out, exit app and reopen (do not stop server). In my experience this only happens the very first time the database is initialized, likely due to a race condition.
+- MAKE SURE TO CLEAR EXPO APP'S STORAGE BEFORE TESTING
 
 20251030 Dot updates
 Stuff for discussing at the meeting or improvment:
