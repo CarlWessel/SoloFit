@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { AppState } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { AppState, View, ActivityIndicator, Text } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -21,7 +21,27 @@ import Example from './Pages/GPTShowExercisesExample';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+  const [isDbReady, setIsDbReady] = useState(false);
+  const [dbError, setDbError] = useState(null);
 
+  // Initialize database BEFORE rendering navigation
+  useEffect(() => {
+    const initializeDatabase = async () => {
+      try {
+        console.log('Starting database initialization...');
+        await DBSetup();
+        console.log('Database initialization complete');
+        setIsDbReady(true);
+      } catch (error) {
+        console.error('Failed to initialize database:', error);
+        setDbError(error.message);
+      }
+    };
+
+    initializeDatabase();
+  }, []);
+
+  // Setup notifications
   useEffect(() => {
     const setupNotifications = async () => {
       const granted = await requestNotificationPermission();
@@ -45,11 +65,52 @@ export default function App() {
     return () => subscription.remove();
   }, []);
 
-  // Initialize the database
-  useEffect(() => {
-      DBSetup();
-  }, []);
+  // Show minimal loading spinner while database initializes
+  if (!isDbReady) {
+    return (
+      <View style={{ 
+        flex: 1, 
+        justifyContent: 'center', 
+        alignItems: 'center',
+        backgroundColor: '#0a1929' 
+      }}>
+        <StatusBar style="light" />
+        {dbError ? (
+          <>
+            <Text style={{ 
+              color: '#ff6b6b', 
+              fontSize: 18, 
+              fontWeight: 'bold',
+              marginBottom: 10 
+            }}>
+              ⚠️
+            </Text>
+            <Text style={{ 
+              color: '#fff', 
+              fontSize: 14,
+              textAlign: 'center',
+              paddingHorizontal: 20 
+            }}>
+              Database initialization failed
+            </Text>
+            <Text style={{ 
+              color: '#aaa', 
+              fontSize: 12,
+              marginTop: 10,
+              textAlign: 'center',
+              paddingHorizontal: 20 
+            }}>
+              Please restart the app
+            </Text>
+          </>
+        ) : (
+          <ActivityIndicator size="large" color="#4fc3f7" />
+        )}
+      </View>
+    );
+  }
 
+  // Only render navigation after database is ready
   return (
     <NavigationContainer>
       <StatusBar style="light" />

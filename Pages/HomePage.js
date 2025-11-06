@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { Text, View, Alert, TouchableOpacity, ScrollView, Switch } from 'react-native';
+import { Text, View, Alert, TouchableOpacity, ScrollView, Switch, ActivityIndicator } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { styles, colors } from '../styles';
 import RoutineService from '../services/RoutineService';
@@ -8,6 +8,7 @@ import RoutineService from '../services/RoutineService';
 export default function HomePage({ navigation }) {
   const [isPaidUser, setIsPaidUser] = useState(true);
   const [userRoutines, setUserRoutines] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     loadUserRoutines();
@@ -22,11 +23,15 @@ export default function HomePage({ navigation }) {
 
   const loadUserRoutines = async () => {
     try {
+      setIsLoading(true);
       const routinesData = await RoutineService.getUserRoutines();
       // Limit to 3 most recent
       setUserRoutines(routinesData.slice(0, 3));
     } catch (error) {
       console.error('Error loading user routines:', error);
+      Alert.alert('Error', 'Failed to load routines. Please restart the app.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -109,7 +114,7 @@ export default function HomePage({ navigation }) {
             onPress={() => navigation.navigate('PremadeRoutines')}
           >
             <Text style={[styles.startText, { fontSize: 18, fontWeight: 'bold' }]}>
-              ⭐ Premade routines
+              ⭐ Premade Routines
             </Text>
             <Text style={[styles.text, { fontSize: 12, marginTop: 4 }]}>
               Choose from our templates
@@ -130,7 +135,21 @@ export default function HomePage({ navigation }) {
             </TouchableOpacity>
           </View>
           
-          {userRoutines.length === 0 ? (
+          {isLoading ? (
+            <View
+              style={{
+                backgroundColor: '#1a3a52',
+                padding: 20,
+                borderRadius: 10,
+                alignItems: 'center',
+              }}
+            >
+              <ActivityIndicator size="large" color={colors.accent} />
+              <Text style={[styles.text, { marginTop: 10, opacity: 0.6 }]}>
+                Loading routines...
+              </Text>
+            </View>
+          ) : userRoutines.length === 0 ? (
             <View
               style={{
                 backgroundColor: '#1a3a52',
