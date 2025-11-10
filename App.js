@@ -16,7 +16,7 @@ import RoutineList from './Pages/RoutineList';
 import WorkoutHistory from './Pages/WorkoutHistory';
 import PremadeRoutines from './Pages/PremadeRoutines';
 import UseWorkout from './Pages/UseWorkout';
-import Example from './Pages/GPTShowExercisesExample';
+import Profile from './Pages/Profile';
 
 const Stack = createNativeStackNavigator();
 
@@ -125,7 +125,7 @@ export default function App() {
         <Stack.Screen name="WorkoutHistory" component={WorkoutHistory} />
         <Stack.Screen name="PremadeRoutines" component={PremadeRoutines} />
         <Stack.Screen name="UseWorkout" component={UseWorkout} />
-        <Stack.Screen name="GPTShowExercisesExample" component={Example} />
+        <Stack.Screen name="Profile" component={Profile} />
       </Stack.Navigator>
     </NavigationContainer>
   );

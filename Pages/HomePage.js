@@ -195,12 +195,6 @@ export default function HomePage({ navigation }) {
             🔧 Developer Testing
           </Text>
           
-          <TouchableOpacity
-            style={[styles.startButton, { backgroundColor: '#4CAF50', marginBottom: 10 }]}
-            onPress={() => navigation.navigate('GPTShowExercisesExample')}
-          >
-            <Text style={styles.startText}>View All Exercises (Example)</Text>
-          </TouchableOpacity>
 
           {/* Testing Mode toggle */}
           <View style={{ backgroundColor: '#1a3a52', padding: 16, borderRadius: 10, marginBottom: 8, alignItems: 'center' }}>
@@ -230,7 +224,7 @@ export default function HomePage({ navigation }) {
 
       {/* Footer Navigation */}
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.footerButton} onPress={() => {navigation.navigate('RoutineList'); showAlert("Should display profile, and Routine List will be a part of the profile. Since we're not doing profile page for the moment. I just put the Routine List Page here")}}>
+        <TouchableOpacity style={styles.footerButton} onPress={() => {navigation.navigate('Profile'); showAlert("Should display profile, and Routine List will be a part of the profile. Since we're not doing profile page for the moment. I just put the Routine List Page here")}}>
           <MaterialIcons name="person-outline" size={28} color="black" />
           <Text>Profile</Text>
         </TouchableOpacity>
