@@ -1,9 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, TextInput, ScrollView, Alert } from "react-native";
-import { styles, colors, spacing } from '../styles';
-import { Picker } from '@react-native-picker/picker';
-import RoutineService from '../services/RoutineService';
-import ExerciseService from '../services/ExerciseService';
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  ScrollView,
+  Alert,
+} from "react-native";
+import { styles, colors, spacing } from "../styles";
+import { Picker } from "@react-native-picker/picker";
+import RoutineService from "../services/RoutineService";
+import ExerciseService from "../services/ExerciseService";
 
 export default function AddRoutine({ navigation }) {
   const [routineName, setRoutineName] = useState("");
@@ -18,23 +25,23 @@ export default function AddRoutine({ navigation }) {
   const loadExercises = async () => {
     try {
       const rows = await ExerciseService.getAllExercises();
-      setExercisesList(rows.map(ex => ({ label: ex.name, value: ex.id })));
+      setExercisesList(rows.map((ex) => ({ label: ex.name, value: ex.id })));
     } catch (error) {
-      console.error('Error loading exercises:', error);
+      console.error("Error loading exercises:", error);
     }
   };
 
   const addExercise = () => {
     if (exercisesList.length === 0) {
-      Alert.alert('Error', 'No exercises available');
+      Alert.alert("Error", "No exercises available");
       return;
     }
 
     const newExercise = {
       id: nextExerciseID,
       exerciseId: exercisesList[0]?.value || 1,
-      exerciseName: exercisesList[0]?.label || '',
-      sets: [{ id: 1, reps: '', weight: '' }],
+      exerciseName: exercisesList[0]?.label || "",
+      sets: [{ id: 1, reps: "", weight: "" }],
     };
     setNextExerciseID(nextExerciseID + 1);
     setExercises((prev) => [...prev, newExercise]);
@@ -48,7 +55,7 @@ export default function AddRoutine({ navigation }) {
               ...ex,
               sets: [
                 ...ex.sets,
-                { id: ex.sets.length + 1, reps: '', weight: '' },
+                { id: ex.sets.length + 1, reps: "", weight: "" },
               ],
             }
           : ex
@@ -76,39 +83,48 @@ export default function AddRoutine({ navigation }) {
   };
 
   const onExerciseChanged = (id, exerciseId) => {
-    const selectedExercise = exercisesList.find(ex => ex.value === exerciseId);
+    const selectedExercise = exercisesList.find(
+      (ex) => ex.value === exerciseId
+    );
     setExercises((prev) =>
-      prev.map((ex) => (ex.id === id ? { ...ex, exerciseId, exerciseName: selectedExercise?.label || '' } : ex))
+      prev.map((ex) =>
+        ex.id === id
+          ? { ...ex, exerciseId, exerciseName: selectedExercise?.label || "" }
+          : ex
+      )
     );
   };
 
   const saveRoutine = async () => {
     if (!routineName.trim()) {
-      Alert.alert('Error', 'Please enter a routine name');
+      Alert.alert("Error", "Please enter a routine name");
       return;
     }
 
     if (exercises.length === 0) {
-      Alert.alert('Error', 'Please add at least one exercise');
+      Alert.alert("Error", "Please add at least one exercise");
       return;
     }
 
     // Validate that all exercises have at least one complete set
-    const hasIncompleteSets = exercises.some(ex => 
-      ex.sets.every(set => !set.reps || !set.weight)
+    const hasIncompleteSets = exercises.some((ex) =>
+      ex.sets.every((set) => !set.reps || !set.weight)
     );
 
     if (hasIncompleteSets) {
-      Alert.alert('Error', 'Each exercise must have at least one complete set with reps and weight');
+      Alert.alert(
+        "Error",
+        "Each exercise must have at least one complete set with reps and weight"
+      );
       return;
     }
 
     try {
       // Prepare exercises data in the new structure
-      const exercisesData = exercises.map(ex => ({
+      const exercisesData = exercises.map((ex) => ({
         exerciseId: ex.exerciseId,
         sets: ex.sets
-          .filter(set => set.reps && set.weight)
+          .filter((set) => set.reps && set.weight)
           .map((set, idx) => ({
             setNumber: idx + 1,
             reps: parseInt(set.reps),
@@ -119,15 +135,15 @@ export default function AddRoutine({ navigation }) {
       await RoutineService.addRoutine({
         name: routineName.trim(),
         isPremade: 0,
-        exercises: exercisesData
+        exercises: exercisesData,
       });
 
-      Alert.alert('Success', 'Routine saved successfully!', [
-        { text: 'OK', onPress: () => navigation.goBack() }
+      Alert.alert("Success", "Routine saved successfully!", [
+        { text: "OK", onPress: () => navigation.goBack() },
       ]);
     } catch (error) {
-      console.error('Error saving routine:', error);
-      Alert.alert('Error', 'Failed to save routine');
+      console.error("Error saving routine:", error);
+      Alert.alert("Error", "Failed to save routine");
     }
   };
 
@@ -161,11 +177,7 @@ export default function AddRoutine({ navigation }) {
             dropdownIconColor={colors.accent}
           >
             {exercisesList.map((ex) => (
-              <Picker.Item
-                key={ex.value}
-                label={ex.label}
-                value={ex.value}
-              />
+              <Picker.Item key={ex.value} label={ex.label} value={ex.value} />
             ))}
           </Picker>
         </View>
@@ -216,43 +228,62 @@ export default function AddRoutine({ navigation }) {
       </View>
     </View>
   );
-
   const RenderSets = ({ exercise }) => (
     <>
-      {exercise.sets.map((set) => (
-        <View
-          key={set.id}
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            width: "100%",
-            marginVertical: 5,
-          }}
-        >
-          <Text style={[styles.headerText]}>Set {set.id}</Text>
-          <TextInput
-            style={[styles.textInput, { flex: 1, marginRight: 5 }]}
-            placeholder="Reps"
-            placeholderTextColor={colors.accent}
-            keyboardType="numeric"
-            value={set.reps}
-            onChangeText={(value) =>
-              updateSetValue(exercise.id, set.id, "reps", value)
-            }
-          />
-          <TextInput
-            style={[styles.textInput, { flex: 1 }]}
-            placeholder="Weight"
-            placeholderTextColor={colors.accent}
-            keyboardType="numeric"
-            value={set.weight}
-            onChangeText={(value) =>
-              updateSetValue(exercise.id, set.id, "weight", value)
-            }
-          />
-        </View>
-      ))}
+      {exercise.sets.map((set) => {
+        const [localReps, setLocalReps] = useState(set.reps);
+        const [localWeight, setLocalWeight] = useState(set.weight);
+
+        useEffect(() => {
+          setLocalReps(set.reps);
+          setLocalWeight(set.weight);
+        }, [set.reps, set.weight]);
+
+        return (
+          <View
+            key={set.id}
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "100%",
+              marginVertical: 5,
+            }}
+          >
+            <Text style={[styles.headerText]}>Set {set.id}</Text>
+
+            <TextInput
+              style={[
+                styles.textInput,
+                { flex: 1, marginRight: 5, paddingLeft: 7 },
+              ]}
+              placeholder="Reps"
+              placeholderTextColor={colors.accent}
+              value={localReps}
+              onChangeText={setLocalReps}
+              onEndEditing={(e) =>
+                updateSetValue(exercise.id, set.id, "reps", e.nativeEvent.text)
+              }
+            />
+
+            <TextInput
+              style={[styles.textInput, { flex: 1 }]}
+              placeholder="Weight"
+              placeholderTextColor={colors.accent}
+              value={localWeight}
+              onChangeText={setLocalWeight}
+              onEndEditing={(e) =>
+                updateSetValue(
+                  exercise.id,
+                  set.id,
+                  "weight",
+                  e.nativeEvent.text
+                )
+              }
+            />
+          </View>
+        );
+      })}
     </>
   );
 
@@ -283,7 +314,7 @@ export default function AddRoutine({ navigation }) {
             style={[
               {
                 height: 40,
-                width: '90%',
+                width: "90%",
                 borderWidth: 1,
                 borderColor: colors.border,
                 borderRadius: 4,
