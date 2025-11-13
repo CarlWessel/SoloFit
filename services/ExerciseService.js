@@ -14,4 +14,22 @@ export default class ExerciseService {
     );
     return result.lastInsertRowId;
   }
+
+  static async editExercise(id, newName) {
+    const db = await DatabaseManager.getDB();
+    await db.runAsync(
+      'UPDATE exercises SET name = ? WHERE id = ?;',
+      [newName, id]
+    );
+  }
+
+  static async deleteExercise(id) {
+    const db = await DatabaseManager.getDB();
+    const result = await db.runAsync(
+      'DELETE FROM exercises WHERE id = ?;',
+      [id]
+    );
+
+  return result.changes > 0; 
+}
 }
