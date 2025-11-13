@@ -1,5 +1,5 @@
 // styles.js
-import { StyleSheet } from 'react-native';
+import { StyleSheet } from "react-native";
 
 export const colors = {
   background: '#023047',
@@ -96,9 +96,19 @@ export const styles = StyleSheet.create({
         paddingBottom: spacing.xs,
         fontWeight: '500'
     },
+    listSubheader: {
+        color: colors.accent,
+        fontSize: 19,
+        paddingBottom: spacing.xs,
+        fontWeight: '500'
+    },
     listText: {
         color: colors.textLight,
-        fontSize: 15,
+        fontSize: 18,
+    },
+    listTextHighlight: {
+        color: colors.accent,
+        fontSize: 18,
     },
     buttonRow: {
         flexDirection: 'row',
@@ -108,16 +118,66 @@ export const styles = StyleSheet.create({
     },
     editButton: {
         backgroundColor: colors.accent,
-        padding: spacing.sm,
-        width: 100,
+        paddingVertical: 10,
+        paddingHorizontal: 20,
         borderRadius: 10,
-        alignItems: 'center'
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     deleteButton: {
         backgroundColor: colors.delete,
-        padding: spacing.sm,
-        width: 100,
+        paddingVertical: 10,
+        paddingHorizontal: 20,
         borderRadius: 10,
-        alignItems: 'center'
+        alignItems: 'center',
+        justifyContent: 'center',
     },
+    textInput: {
+        flex: 1,
+        height: 40,
+        borderWidth: 1,
+        borderColor: colors.border,
+        borderRadius: 4,
+        marginHorizontal: 5,
+        paddingHorizontal: 8,
+        color: colors.accent,
+        backgroundColor: colors.background,
+    },
+    modalOverlay: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)',
+    },
+    modalContainer: {
+        width: '80%',
+        backgroundColor: colors.textLight,
+        borderRadius: 10,
+        padding: spacing.md,
+        alignItems: 'center',
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: colors.primary,
+        marginBottom: spacing.md,
+    },
+    modalTextInput: {
+        width: '100%',
+        height: 45,
+        borderWidth: 1,
+        borderColor: colors.primary,
+        borderRadius: 8,
+        paddingHorizontal: 10,
+        fontSize: 16,
+        color: colors.textDark,
+        backgroundColor: colors.textLight,
+        marginBottom: spacing.md,
+    },
+    modalButtonRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+    },
+
 });

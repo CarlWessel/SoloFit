@@ -1,112 +1,55 @@
-import { openDatabaseAsync } from "expo-sqlite";
-import exercises from "../data/exercises.json";
-import preMadeWorkouts from "../data/premadeworkouts.json";
+import { DatabaseManager } from './DatabaseManager';
+import exercises from '../data/exercises.json';
+import preMadeRoutines from '../data/PreMadeRoutines.json';
 
 export async function DBSetup() {
-  const db = await openDatabaseAsync("workout.db");
-
-  // --- CREATE TABLES ---
-  await db.execAsync(`
-    CREATE TABLE IF NOT EXISTS exercises (
-      id INTEGER PRIMARY KEY NOT NULL,
-      name TEXT NOT NULL
-    );
-  `);
-
-  await db.execAsync(`
-    CREATE TABLE IF NOT EXISTS workouts (
-      id INTEGER PRIMARY KEY NOT NULL,
-      name TEXT NOT NULL
-    );
-  `);
-
-  await db.execAsync(`
-    CREATE TABLE IF NOT EXISTS workout_exercises (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      workoutId INTEGER NOT NULL,
-      exerciseId INTEGER NOT NULL,
-      FOREIGN KEY (workoutId) REFERENCES workouts(id),
-      FOREIGN KEY (exerciseId) REFERENCES exercises(id)
-    );
-  `);
-
-  await db.execAsync(`
-    CREATE TABLE IF NOT EXISTS workout_sets (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      workoutExerciseId INTEGER NOT NULL,
-      setNumber INTEGER NOT NULL,
-      reps INTEGER NOT NULL,
-      weight REAL NOT NULL,
-      FOREIGN KEY (workoutExerciseId) REFERENCES workout_exercises(id)
-    );
-  `);
-
-  console.log("✅ Tables created or verified");
-
-  // --- INSERT EXERCISES ---
-  const [{ count: exCount }] = await db.getAllAsync(
-    "SELECT COUNT(*) as count FROM exercises;"
-  );
-
+  // Initialize database (this also creates tables)
+  const db = await DatabaseManager.initialize();
+  
+  console.log('Seeding initial data...');
+  
+  // Insert exercises if table empty
+  const [{ count: exCount }] = await db.getAllAsync('SELECT COUNT(*) as count FROM exercises;');
   if (exCount === 0) {
-    console.log("🗂 Inserting exercises...");
+    console.log('Inserting exercises...');
     for (const ex of exercises) {
-      await db.runAsync("INSERT INTO exercises (id, name) VALUES (?, ?);", [
-        ex.id,
-        ex.name,
-      ]);
+      await db.runAsync('INSERT INTO exercises (id, name) VALUES (?, ?);', [ex.id, ex.name]);
     }
-    console.log("✅ Exercises inserted");
-  } else {
-    console.log("⚠️ Exercises already exist, skipping insert");
+    console.log(`Inserted ${exercises.length} exercises`);
   }
 
-  // --- INSERT WORKOUTS, EXERCISES, AND SETS ---
-  const [{ count: wCount }] = await db.getAllAsync(
-    "SELECT COUNT(*) as count FROM workouts;"
-  );
+  // Insert premade routines if empty
+  const [{ count: rCount }] = await db.getAllAsync('SELECT COUNT(*) as count FROM routines;');
+  if (rCount === 0) {
+    console.log('Inserting premade routines...');
+    for (const routine of preMadeRoutines) {
+      const result = await db.runAsync(
+        'INSERT INTO routines (name, isPremade) VALUES (?, 1);',
+        [routine.name]
+      );
+      const routineId = result.lastInsertRowId;
 
-  if (wCount === 0) {
-    console.log("🗂 Inserting pre-made workouts...");
-    for (const workout of preMadeWorkouts) {
-      // Insert the workout
-      await db.runAsync("INSERT INTO workouts (id, name) VALUES (?, ?);", [
-        workout.workoutId,
-        workout.name,
-      ]);
-
-      // Insert each exercise in the workout
-      for (const ex of workout.exercises) {
-        // Insert the workout-exercise link
-        const result = await db.runAsync(
-          "INSERT INTO workout_exercises (workoutId, exerciseId) VALUES (?, ?);",
-          [workout.workoutId, ex.exerciseId]
+      for (const ex of routine.exercises) {
+        // Insert the exercise mapping
+        const exResult = await db.runAsync(
+          'INSERT INTO routine_exercises (routineId, exerciseId) VALUES (?, ?);',
+          [routineId, ex.exerciseId]
         );
+        const routineExerciseId = exResult.lastInsertRowId;
 
-        const workoutExerciseId = result.lastInsertRowId;
-
-        // Handle the nested Sets array
-        if (Array.isArray(ex.Sets) && ex.Sets.length > 0) {
-          for (let i = 0; i < ex.Sets.length; i++) {
-            const set = ex.Sets[i];
-            await db.runAsync(
-              "INSERT INTO workout_sets (workoutExerciseId, setNumber, reps, weight) VALUES (?, ?, ?, ?);",
-              [workoutExerciseId, i + 1, set.reps, set.weight]
-            );
-          }
-        } else {
-          // Default to 1 empty set if none provided
+        // Insert each set with setNumber
+        let setNumber = 1;
+        for (const set of ex.Sets) {
           await db.runAsync(
-            "INSERT INTO workout_sets (workoutExerciseId, setNumber, reps, weight) VALUES (?, ?, ?, ?);",
-            [workoutExerciseId, 1, 0, 0]
+            'INSERT INTO routine_exercise_sets (routineExerciseId, setNumber, reps, weight) VALUES (?, ?, ?, ?);',
+            [routineExerciseId, setNumber, set.reps, set.weight]
           );
+          setNumber++;
         }
       }
     }
-    console.log("✅ Pre-made workouts inserted");
-  } else {
-    console.log("⚠️ Workouts already exist, skipping insert");
+    console.log(`Inserted ${preMadeRoutines.length} premade routines`);
   }
 
-  console.log("🎉 Database setup complete!");
+  console.log('Database setup complete');
 }

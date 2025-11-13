@@ -28,4 +28,4 @@ export default function AddExercises({ navigation }){
       </TouchableOpacity>
     </View>
   );
-} //end add workout
+} //end add exercise
