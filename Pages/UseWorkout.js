@@ -1,13 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, TextInput, ScrollView, Alert, } from 'react-native';
-import { styles, colors, spacing } from '../styles';
-import RoutineService from '../services/RoutineService';
-import WorkoutService from '../services/WorkoutService';
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  ScrollView,
+  Alert,
+} from "react-native";
+import { styles, colors, spacing } from "../styles";
+import RoutineService from "../services/RoutineService";
+import WorkoutService from "../services/WorkoutService";
 
 export default function UseWorkout({ navigation, route }) {
   const { workoutId, workoutName, isPremade = false } = route.params;
   const [exercises, setExercises] = useState([]);
-  const [workoutDate, setWorkoutDate] = useState(new Date().toISOString().split('T')[0]);
+  const [workoutDate, setWorkoutDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
 
   useEffect(() => {
     loadWorkoutExercises();
@@ -16,23 +25,23 @@ export default function UseWorkout({ navigation, route }) {
   const loadWorkoutExercises = async () => {
     try {
       const routine = await RoutineService.getRoutineById(workoutId);
-      
+
       if (routine && routine.exercises) {
         const formattedExercises = routine.exercises.map((ex, idx) => ({
-        id: idx + 1,
-        exerciseId: ex.id,
-        exerciseName: ex.name,
-        sets: ex.sets.map((s) => ({
-          id: s.setNumber,
-          reps: s.reps.toString(),
-          weight: s.weight.toString(),
-        })),
-      }));
+          id: idx + 1,
+          exerciseId: ex.id,
+          exerciseName: ex.name,
+          sets: ex.sets.map((s) => ({
+            id: s.setNumber,
+            reps: s.reps.toString(),
+            weight: s.weight.toString(),
+          })),
+        }));
 
         setExercises(formattedExercises);
       }
     } catch (error) {
-      console.error('Error loading workout exercises:', error);
+      console.error("Error loading workout exercises:", error);
     }
   };
 
@@ -53,7 +62,7 @@ export default function UseWorkout({ navigation, route }) {
 
   const saveWorkout = async () => {
     if (!workoutDate) {
-      Alert.alert('Error', 'Please enter a workout date');
+      Alert.alert("Error", "Please enter a workout date");
       return;
     }
 
@@ -66,7 +75,7 @@ export default function UseWorkout({ navigation, route }) {
           .map((s) => ({
             setNumber: s.id,
             reps: parseInt(s.reps),
-            weight: parseFloat(s.weight)
+            weight: parseFloat(s.weight),
           })),
       }));
 
@@ -79,15 +88,15 @@ export default function UseWorkout({ navigation, route }) {
         startDateTime: new Date().toISOString().slice(0, 16),
         endDateTime: new Date().toISOString().slice(0, 16),
         exercises: exercisesData,
-        notes: "TODO: Add UI for notes and workout name"
+        notes: "TODO: Add UI for notes and workout name",
       });
 
-      Alert.alert('Success', 'Workout saved to history!', [
-        { text: 'OK', onPress: () => navigation.navigate('Home') }
+      Alert.alert("Success", "Workout saved to history!", [
+        { text: "OK", onPress: () => navigation.navigate("Home") },
       ]);
     } catch (error) {
-      console.error('Error saving workout:', error);
-      Alert.alert('Error', 'Failed to save workout');
+      console.error("Error saving workout:", error);
+      Alert.alert("Error", "Failed to save workout");
     }
   };
 
@@ -97,7 +106,7 @@ export default function UseWorkout({ navigation, route }) {
         borderWidth: 1,
         borderColor: colors.border,
         borderRadius: 8,
-        padding: 10,
+        padding: 2,
         margin: 10,
         backgroundColor: colors.primary,
       }}
@@ -106,39 +115,60 @@ export default function UseWorkout({ navigation, route }) {
         {exercise.exerciseName}
       </Text>
 
-      {exercise.sets.map((set) => (
-        <View
-          key={set.id}
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginVertical: 5,
-          }}
-        >
-          <Text style={[styles.headerText, { flex: 0.3 }]}>Set {set.id}</Text>
-          <TextInput
-            style={[styles.textInput, { flex: 1, marginRight: 5 }]}
-            placeholder="Reps"
-            placeholderTextColor={colors.accent}
-            keyboardType="numeric"
-            value={set.reps}
-            onChangeText={(value) =>
-              updateSetValue(exercise.id, set.id, 'reps', value)
-            }
-          />
-          <TextInput
-            style={[styles.textInput, { flex: 1 }]}
-            placeholder="Weight"
-            placeholderTextColor={colors.accent}
-            keyboardType="numeric"
-            value={set.weight}
-            onChangeText={(value) =>
-              updateSetValue(exercise.id, set.id, 'weight', value)
-            }
-          />
-        </View>
-      ))}
+      {exercise.sets.map((set) => {
+        const [localReps, setLocalReps] = useState(set.reps);
+        const [localWeight, setLocalWeight] = useState(set.weight);
+
+        useEffect(() => {
+          setLocalReps(set.reps);
+          setLocalWeight(set.weight);
+        }, [set.reps, set.weight]);
+
+        return (
+          <View
+            key={set.id}
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginVertical: 5,
+            }}
+          >
+            <Text style={[styles.headerText, { flex: 0.3, fontSize: 18 }]}>
+              Set {set.id}
+            </Text>
+
+            <TextInput
+              style={[styles.textInput, { flex: 1, marginRight: 5 }]}
+              placeholder="Reps"
+              placeholderTextColor={colors.accent}
+              keyboardType="numeric"
+              value={localReps}
+              onChangeText={setLocalReps}
+              onEndEditing={(e) =>
+                updateSetValue(exercise.id, set.id, "reps", e.nativeEvent.text)
+              }
+            />
+
+            <TextInput
+              style={[styles.textInput, { flex: 1 }]}
+              placeholder="Weight"
+              placeholderTextColor={colors.accent}
+              keyboardType="numeric"
+              value={localWeight}
+              onChangeText={setLocalWeight}
+              onEndEditing={(e) =>
+                updateSetValue(
+                  exercise.id,
+                  set.id,
+                  "weight",
+                  e.nativeEvent.text
+                )
+              }
+            />
+          </View>
+        );
+      })}
     </View>
   );
 
@@ -148,20 +178,20 @@ export default function UseWorkout({ navigation, route }) {
         <View
           style={[
             styles.header,
-            { justifyContent: 'center', alignItems: 'center' },
+            { justifyContent: "center", alignItems: "center" },
           ]}
         >
           <Text style={[styles.headerText, { fontSize: 24, marginBottom: 10 }]}>
             {workoutName}
           </Text>
           <Text style={[styles.text, { fontSize: 14, opacity: 0.8 }]}>
-            {isPremade ? 'Premade Workout' : 'My Routine'}
+            {isPremade ? "Premade Workout" : "My Routine"}
           </Text>
         </View>
 
         <View
           style={{
-            alignItems: 'center',
+            alignItems: "center",
             padding: 10,
             backgroundColor: colors.primary,
           }}
@@ -171,14 +201,14 @@ export default function UseWorkout({ navigation, route }) {
             style={[
               {
                 height: 40,
-                width: '90%',
+                width: "90%",
                 borderWidth: 1,
                 borderColor: colors.border,
                 borderRadius: 4,
                 paddingHorizontal: 8,
                 color: colors.accent,
                 backgroundColor: colors.background,
-                textAlign: 'center',
+                textAlign: "center",
               },
             ]}
             placeholder="YYYY-MM-DD"
@@ -195,8 +225,8 @@ export default function UseWorkout({ navigation, route }) {
 
       <View
         style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
+          flexDirection: "row",
+          justifyContent: "space-between",
           padding: 10,
         }}
       >
