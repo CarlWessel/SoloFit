@@ -19,6 +19,7 @@ export default function Profile({ navigation }) {
   const [exercisesInHistory, setExercisesInHistory] = useState([]);
   const [selectedGraphExercise, setSelectedGraphExercise] = useState(null);
   const [graphMetric, setGraphMetric] = useState("volume"); // "volume" or "maxWeight"
+  const [timeFilter, setTimeFilter] = useState("month"); // "week", "month", "year"
   const [chartData, setChartData] = useState(null);
 
   // Load exercises that appear in workout history
@@ -88,21 +89,101 @@ export default function Profile({ navigation }) {
         return;
       }
 
-      // Limit to last 12 data points for readability
-      const recentWorkouts = relevantWorkouts.slice(-12);
+      // TRISH NOTE: Filter by time range - week, month, year relative to current device's date
+      // So that's 7 entries, 4 entries, 12 entries respectively
+      const now = new Date();
+      let filteredWorkouts = [];
+      
+      if (timeFilter === "week") {
+        // Last 7 days
+        const weekAgo = new Date(now);
+        weekAgo.setDate(now.getDate() - 7);
+        filteredWorkouts = relevantWorkouts.filter(w => w.date >= weekAgo);
+      } else if (timeFilter === "month") {
+        // Last 30 days, group by week (take max per week)
+        const monthAgo = new Date(now);
+        monthAgo.setDate(now.getDate() - 30);
+        const inRange = relevantWorkouts.filter(w => w.date >= monthAgo);
+        
+        // Group by week
+        const weekMap = new Map();
+        inRange.forEach(w => {
+          const weekStart = new Date(w.date);
+          weekStart.setDate(w.date.getDate() - w.date.getDay()); // Start of week (Sunday)
+          const weekKey = weekStart.toISOString().split('T')[0];
+          
+          if (!weekMap.has(weekKey)) {
+            weekMap.set(weekKey, []);
+          }
+          weekMap.get(weekKey).push(w);
+        });
+        
+        // Take max value per week
+        filteredWorkouts = Array.from(weekMap.entries()).map(([weekKey, workouts]) => {
+          const metric = graphMetric === "volume" ? "volume" : "maxWeight";
+          const maxWorkout = workouts.reduce((max, w) => 
+            w[metric] > max[metric] ? w : max
+          );
+          return maxWorkout;
+        }).sort((a, b) => a.date - b.date);
+        
+      } else if (timeFilter === "year") {
+        // Last 365 days, group by month (take max per month)
+        const yearAgo = new Date(now);
+        yearAgo.setFullYear(now.getFullYear() - 1);
+        const inRange = relevantWorkouts.filter(w => w.date >= yearAgo);
+        
+        // Group by month
+        const monthMap = new Map();
+        inRange.forEach(w => {
+          const monthKey = `${w.date.getFullYear()}-${(w.date.getMonth() + 1).toString().padStart(2, '0')}`;
+          
+          if (!monthMap.has(monthKey)) {
+            monthMap.set(monthKey, []);
+          }
+          monthMap.get(monthKey).push(w);
+        });
+        
+        // Take max value per month
+        filteredWorkouts = Array.from(monthMap.entries()).map(([monthKey, workouts]) => {
+          const metric = graphMetric === "volume" ? "volume" : "maxWeight";
+          const maxWorkout = workouts.reduce((max, w) => 
+            w[metric] > max[metric] ? w : max
+          );
+          return maxWorkout;
+        }).sort((a, b) => a.date - b.date);
+      }
 
-      // Format labels (show date)
-      const labels = recentWorkouts.map((w) => {
-        const month = (w.date.getMonth() + 1).toString().padStart(2, '0');
-        const day = w.date.getDate().toString().padStart(2, '0');
-        return `${month}/${day}`;
+      if (filteredWorkouts.length === 0) {
+        setChartData(null);
+        return;
+      }
+
+      // Format labels based on time filter
+      const labels = filteredWorkouts.map((w) => {
+        if (timeFilter === "week") {
+          // Show day of week for week view
+          const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+          return days[w.date.getDay()];
+        } else if (timeFilter === "month") {
+          // Show month/day for month view
+          const month = (w.date.getMonth() + 1).toString().padStart(2, '0');
+          const day = w.date.getDate().toString().padStart(2, '0');
+          return `${month}/${day}`;
+        } else {
+          // Show month abbreviation and year for year view
+          const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                         'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+          const year = w.date.getFullYear().toString().slice(-2);
+          return `${months[w.date.getMonth()]} '${year}`;
+        }
       });
 
       // Get data based on selected metric
       const data =
         graphMetric === "volume"
-          ? recentWorkouts.map((w) => w.volume)
-          : recentWorkouts.map((w) => w.maxWeight);
+          ? filteredWorkouts.map((w) => w.volume)
+          : filteredWorkouts.map((w) => w.maxWeight);
 
       setChartData({
         labels,
@@ -129,7 +210,7 @@ export default function Profile({ navigation }) {
     if (selectedGraphExercise) {
       calculateProgressData();
     }
-  }, [selectedGraphExercise, graphMetric]);
+  }, [selectedGraphExercise, graphMetric, timeFilter]);
 
   const chartConfig = {
     backgroundGradientFrom: "#333742",
@@ -238,6 +319,61 @@ export default function Profile({ navigation }) {
                 </Picker>
               </View>
 
+              {/* Time Filter Selector */}
+              <View
+                style={{
+                  flexDirection: "row",
+                  gap: 10,
+                  marginBottom: 15,
+                }}
+              >
+                <TouchableOpacity
+                  style={{
+                    flex: 1,
+                    backgroundColor:
+                      timeFilter === "week" ? "#522687" : "#6D7381",
+                    padding: 12,
+                    borderRadius: 10,
+                    alignItems: "center",
+                  }}
+                  onPress={() => setTimeFilter("week")}
+                >
+                  <Text style={[styles.text, { fontSize: 14 }]}>
+                    Week
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{
+                    flex: 1,
+                    backgroundColor:
+                      timeFilter === "month" ? "#522687" : "#6D7381",
+                    padding: 12,
+                    borderRadius: 10,
+                    alignItems: "center",
+                  }}
+                  onPress={() => setTimeFilter("month")}
+                >
+                  <Text style={[styles.text, { fontSize: 14 }]}>
+                    Month
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{
+                    flex: 1,
+                    backgroundColor:
+                      timeFilter === "year" ? "#522687" : "#6D7381",
+                    padding: 12,
+                    borderRadius: 10,
+                    alignItems: "center",
+                  }}
+                  onPress={() => setTimeFilter("year")}
+                >
+                  <Text style={[styles.text, { fontSize: 14 }]}>
+                    Year
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
               {/* Metric Selector */}
               <View
                 style={{
@@ -261,7 +397,7 @@ export default function Profile({ navigation }) {
                     Total Volume
                   </Text>
                   <Text style={[styles.text, { fontSize: 12, opacity: 0.8 }]}>
-                    (reps × weight)
+                    (reps x weight)
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -318,9 +454,11 @@ export default function Profile({ navigation }) {
                       { marginTop: 10, fontSize: 12, opacity: 0.7 },
                     ]}
                   >
-                    {graphMetric === "volume"
-                      ? "Total weight lifted per workout"
-                      : "Heaviest weight per workout"}
+                    {timeFilter === "week" 
+                      ? "Last 7 days" 
+                      : timeFilter === "month"
+                      ? "Last 30 days (weekly peaks)"
+                      : "Last year (monthly peaks)"}
                   </Text>
                 </View>
               ) : (
@@ -335,7 +473,7 @@ export default function Profile({ navigation }) {
                   <Text
                     style={[styles.text, { opacity: 0.7, textAlign: "center" }]}
                   >
-                    No data available for this exercise yet.
+                    No data available for this time period.
                   </Text>
                 </View>
               )}
