@@ -1,9 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, TextInput, Modal, Alert } from "react-native";
-import { Picker } from '@react-native-picker/picker';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  Modal,
+  Alert,
+} from "react-native";
+import { Picker } from "@react-native-picker/picker";
 import { styles } from "../styles";
-import ExerciseService from "../services/ExerciseService"; 
-import { MaterialIcons } from '@expo/vector-icons';
+import ExerciseService from "../services/ExerciseService";
+import { MaterialIcons } from "@expo/vector-icons";
+import { LineChar, LineChart } from "react-native-chart-kit";
+import WorkoutService from "../services/WorkoutService";
+import RoutineService from "../services/RoutineService";
 
 export default function Profile({ navigation }) {
   const [username, setUsername] = useState("TestUser");
@@ -18,6 +28,7 @@ export default function Profile({ navigation }) {
     try {
       const exercises = await ExerciseService.getAllExercises();
       setExerciseList(exercises);
+      console.log("EXERCISES LIST", exerciseList);
       if (exercises.length > 0) setSelectedExercise(exercises[0].id);
     } catch (err) {
       console.error("Failed to load exercises:", err);
@@ -28,6 +39,38 @@ export default function Profile({ navigation }) {
     loadExercises();
   }, []);
 
+  const chartData = {
+    labels: [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ],
+
+    datasets: [
+      {
+        data: [400, 500, 100, 200, 40, 30, 20, 10, 15, 70, 20, 40],
+      },
+    ],
+  };
+  const chartConfig = {
+    backgroundGradientFrom: "#1E2923",
+    backgroundGradientFromOpacity: 0,
+    backgroundGradientTo: "#08130D",
+    backgroundGradientToOpacity: 0.5,
+    color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
+    strokeWidth: 2, // optional, default 3
+    barPercentage: 0.5,
+    useShadowColorFromDataset: false, // optional
+  };
   const handleAddExercise = () => {
     setExerciseName("");
     setIsEditing(false);
@@ -48,7 +91,10 @@ export default function Profile({ navigation }) {
 
     try {
       if (isEditing && selectedExercise) {
-        await ExerciseService.editExercise(selectedExercise, exerciseName.trim());
+        await ExerciseService.editExercise(
+          selectedExercise,
+          exerciseName.trim()
+        );
         Alert.alert("Success", "Exercise updated!");
       } else {
         await ExerciseService.addExercise(exerciseName.trim());
@@ -68,7 +114,10 @@ export default function Profile({ navigation }) {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.headerLeft} onPress={() => navigation.goBack()}>
+        <TouchableOpacity
+          style={styles.headerLeft}
+          onPress={() => navigation.goBack()}
+        >
           <MaterialIcons name="arrow-back-ios-new" style={styles.headerText} />
         </TouchableOpacity>
         <Text style={styles.headerText}>Profile</Text>
@@ -79,18 +128,33 @@ export default function Profile({ navigation }) {
         <Text style={styles.listHeader}>Logged in as:</Text>
         <Text style={styles.text}>{username}</Text>
 
-        
-        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 10, width: '80%', marginTop: 20 }}>
-          <TouchableOpacity style={styles.editButton} onPress={handleAddExercise}>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "center",
+            gap: 10,
+            width: "80%",
+            marginTop: 20,
+          }}
+        >
+          <TouchableOpacity
+            style={styles.editButton}
+            onPress={handleAddExercise}
+          >
             <Text style={styles.text}>Add Exercise</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.deleteButton} onPress={handleEditExercise}>
+          <TouchableOpacity
+            style={styles.deleteButton}
+            onPress={handleEditExercise}
+          >
             <Text style={styles.text}>Edit Exercise</Text>
           </TouchableOpacity>
         </View>
 
-        <Text style={[styles.listHeader, { marginTop: 30 }]}>Personal Records!</Text>
+        <Text style={[styles.listHeader, { marginTop: 30 }]}>
+          Personal Records!
+        </Text>
         {/* Will make a personal records section when I create the table for it */}
       </View>
 
@@ -98,14 +162,16 @@ export default function Profile({ navigation }) {
       <Modal visible={modalVisible} transparent={true}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>{isEditing ? "Edit Exercise" : "Add New Exercise"}</Text>
+            <Text style={styles.modalTitle}>
+              {isEditing ? "Edit Exercise" : "Add New Exercise"}
+            </Text>
 
             {/* Picker only when editing */}
             {isEditing && (
               <Picker
                 selectedValue={selectedExercise}
                 onValueChange={(itemValue) => setSelectedExercise(itemValue)}
-                style={{ width: '100%', marginBottom: 10 }}
+                style={{ width: "100%", marginBottom: 10 }}
               >
                 {exerciseList.map((ex) => (
                   <Picker.Item key={ex.id} label={ex.name} value={ex.id} />
@@ -124,17 +190,29 @@ export default function Profile({ navigation }) {
 
             {/* Save / Cancel buttons */}
             <View style={styles.modalButtonRow}>
-              <TouchableOpacity style={styles.editButton} onPress={saveExercise}>
+              <TouchableOpacity
+                style={styles.editButton}
+                onPress={saveExercise}
+              >
                 <Text style={styles.text}>Save</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.deleteButton} onPress={() => setModalVisible(false)}>
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={() => setModalVisible(false)}
+              >
                 <Text style={styles.text}>Cancel</Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
       </Modal>
+      <LineChart
+        data={chartData}
+        width={400}
+        height={400}
+        chartConfig={chartConfig}
+      />
     </View>
   );
 }
