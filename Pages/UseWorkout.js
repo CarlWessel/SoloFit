@@ -60,6 +60,7 @@ export default function UseWorkout({ navigation, route }) {
     );
   };
 
+  // Trish Note: Fixed bug where using a routine and changing the date does not save correctly
   const saveWorkout = async () => {
     if (!workoutDate) {
       Alert.alert("Error", "Please enter a workout date");
@@ -79,14 +80,24 @@ export default function UseWorkout({ navigation, route }) {
           })),
       }));
 
-      await WorkoutService.addWorkout({
-        // question: do we want a name for workouthistory
-        // name: workoutName.trim(),
-        // date: new Date().toISOString(),
+      // Parse date in LOCAL timezone
+      // Split the date string and create date with local timezone
+      const [year, month, day] = workoutDate.split('-').map(Number);
+      const workoutDateTime = new Date(year, month - 1, day); // month is 0-indexed
+      
+      // If the date is invalid, show error
+      if (isNaN(workoutDateTime.getTime())) {
+        Alert.alert("Error", "Please enter a valid date in YYYY-MM-DD format");
+        return;
+      }
+      
+      // PLACEHOLDER: Set start time to beginning of day, end time to end of day
+      const startDateTime = new Date(workoutDateTime.setHours(0, 0, 0, 0)).toISOString();
+      const endDateTime = new Date(workoutDateTime.setHours(23, 59, 59, 999)).toISOString();
 
-        // toISOString() will pass it to UTC time, but we're going to change this to manually input I just ignore this problem for the moment
-        startDateTime: new Date().toISOString().slice(0, 16),
-        endDateTime: new Date().toISOString().slice(0, 16),
+      await WorkoutService.addWorkout({
+        startDateTime: startDateTime,
+        endDateTime: endDateTime,
         exercises: exercisesData,
         notes: "TODO: Add UI for notes and workout name",
       });

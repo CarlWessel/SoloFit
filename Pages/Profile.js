@@ -3,115 +3,160 @@ import {
   View,
   Text,
   TouchableOpacity,
-  TextInput,
-  Modal,
-  Alert,
+  ScrollView,
+  Dimensions,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { styles } from "../styles";
-import ExerciseService from "../services/ExerciseService";
 import { MaterialIcons } from "@expo/vector-icons";
-import { LineChar, LineChart } from "react-native-chart-kit";
+import { LineChart } from "react-native-chart-kit";
 import WorkoutService from "../services/WorkoutService";
-import RoutineService from "../services/RoutineService";
 
 export default function Profile({ navigation }) {
   const [username, setUsername] = useState("TestUser");
-  const [modalVisible, setModalVisible] = useState(false);
-  const [exerciseName, setExerciseName] = useState("");
-  const [exerciseList, setExerciseList] = useState([]);
-  const [selectedExercise, setSelectedExercise] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
 
-  // Load exercises from DB to refresh data
-  const loadExercises = async () => {
+  // Progress tracking state
+  const [exercisesInHistory, setExercisesInHistory] = useState([]);
+  const [selectedGraphExercise, setSelectedGraphExercise] = useState(null);
+  const [graphMetric, setGraphMetric] = useState("volume"); // "volume" or "maxWeight"
+  const [chartData, setChartData] = useState(null);
+
+  // Load exercises that appear in workout history
+  const loadExercisesFromHistory = async () => {
     try {
-      const exercises = await ExerciseService.getAllExercises();
-      setExerciseList(exercises);
-      console.log("EXERCISES LIST", exerciseList);
-      if (exercises.length > 0) setSelectedExercise(exercises[0].id);
+      const history = await WorkoutService.getWorkoutHistory();
+      
+      // Extract unique exercises from history
+      const exerciseMap = new Map();
+      history.forEach((workout) => {
+        workout.exercises.forEach((ex) => {
+          if (!exerciseMap.has(ex.exerciseId)) {
+            exerciseMap.set(ex.exerciseId, ex.name);
+          }
+        });
+      });
+
+      const exercises = Array.from(exerciseMap.entries()).map(([id, name]) => ({
+        id,
+        name,
+      }));
+
+      setExercisesInHistory(exercises);
+      if (exercises.length > 0 && !selectedGraphExercise) {
+        setSelectedGraphExercise(exercises[0].id);
+      }
     } catch (err) {
-      console.error("Failed to load exercises:", err);
+      console.error("Failed to load history exercises:", err);
+    }
+  };
+
+  // Calculate progress data for selected exercise
+  const calculateProgressData = async () => {
+    if (!selectedGraphExercise) return;
+
+    try {
+      const history = await WorkoutService.getWorkoutHistory();
+      
+      // Filter workouts containing the selected exercise
+      const relevantWorkouts = history
+        .map((workout) => {
+          const exercise = workout.exercises.find(
+            (ex) => ex.exerciseId === selectedGraphExercise
+          );
+          if (!exercise) return null;
+
+          const date = new Date(workout.startDateTime);
+          
+          // Calculate metrics
+          const volume = exercise.sets.reduce(
+            (sum, set) => sum + set.reps * set.weight,
+            0
+          );
+          const maxWeight = Math.max(...exercise.sets.map((set) => set.weight));
+
+          return {
+            date,
+            volume,
+            maxWeight,
+          };
+        })
+        .filter(Boolean)
+        .sort((a, b) => a.date - b.date); // Sort by date ascending
+
+      if (relevantWorkouts.length === 0) {
+        setChartData(null);
+        return;
+      }
+
+      // Limit to last 12 data points for readability
+      const recentWorkouts = relevantWorkouts.slice(-12);
+
+      // Format labels (show date)
+      const labels = recentWorkouts.map((w) => {
+        const month = (w.date.getMonth() + 1).toString().padStart(2, '0');
+        const day = w.date.getDate().toString().padStart(2, '0');
+        return `${month}/${day}`;
+      });
+
+      // Get data based on selected metric
+      const data =
+        graphMetric === "volume"
+          ? recentWorkouts.map((w) => w.volume)
+          : recentWorkouts.map((w) => w.maxWeight);
+
+      setChartData({
+        labels,
+        datasets: [{ data }],
+      });
+    } catch (err) {
+      console.error("Failed to calculate progress:", err);
     }
   };
 
   useEffect(() => {
-    loadExercises();
+    loadExercisesFromHistory();
   }, []);
 
-  const chartData = {
-    labels: [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ],
+  // Refresh data when screen comes into focus
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      loadExercisesFromHistory();
+    });
+    return unsubscribe;
+  }, [navigation]);
 
-    datasets: [
-      {
-        data: [400, 500, 100, 200, 40, 30, 20, 10, 15, 70, 20, 40],
-      },
-    ],
-  };
+  useEffect(() => {
+    if (selectedGraphExercise) {
+      calculateProgressData();
+    }
+  }, [selectedGraphExercise, graphMetric]);
+
   const chartConfig = {
-    backgroundGradientFrom: "#1E2923",
-    backgroundGradientFromOpacity: 0,
-    backgroundGradientTo: "#08130D",
-    backgroundGradientToOpacity: 0.5,
-    color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
-    strokeWidth: 2, // optional, default 3
+    backgroundGradientFrom: "#333742",
+    backgroundGradientFromOpacity: 0.8,
+    backgroundGradientTo: "#522687",
+    backgroundGradientToOpacity: 0.9,
+    color: (opacity = 1) => `rgba(168, 174, 188, ${opacity})`,
+    strokeWidth: 3,
     barPercentage: 0.5,
-    useShadowColorFromDataset: false, // optional
-  };
-  const handleAddExercise = () => {
-    setExerciseName("");
-    setIsEditing(false);
-    setModalVisible(true);
+    useShadowColorFromDataset: false,
+    propsForDots: {
+      r: "5",
+      strokeWidth: "2",
+      stroke: "#522687",
+    },
+    propsForBackgroundLines: {
+      strokeDasharray: "",
+      stroke: "#6D7381",
+      strokeWidth: 1,
+    },
+    decimalPlaces: 0,
   };
 
-  const handleEditExercise = () => {
-    setExerciseName("");
-    setIsEditing(true);
-    setModalVisible(true);
-  };
-
-  const saveExercise = async () => {
-    if (!exerciseName.trim()) {
-      Alert.alert("Error", "Exercise name cannot be empty.");
-      return;
-    }
-
-    try {
-      if (isEditing && selectedExercise) {
-        await ExerciseService.editExercise(
-          selectedExercise,
-          exerciseName.trim()
-        );
-        Alert.alert("Success", "Exercise updated!");
-      } else {
-        await ExerciseService.addExercise(exerciseName.trim());
-        Alert.alert("Success", "Exercise added!");
-      }
-
-      // Refresh exercise list
-      await loadExercises();
-      setModalVisible(false);
-    } catch (error) {
-      console.error(error);
-      Alert.alert("Error", "Failed to save exercise.");
-    }
-  };
+  const screenWidth = Dimensions.get("window").width;
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
@@ -128,91 +173,196 @@ export default function Profile({ navigation }) {
         <Text style={styles.listHeader}>Logged in as:</Text>
         <Text style={styles.text}>{username}</Text>
 
+        {/* Progress Graphs Section */}
+        <View style={{ width: "100%", marginTop: 40, paddingHorizontal: 20 }}>
+          <Text style={[styles.listHeader, { marginBottom: 15 }]}>
+            📊 Progress Graph
+          </Text>
+
+          {exercisesInHistory.length === 0 ? (
+            <View
+              style={{
+                backgroundColor: "#333742",
+                padding: 20,
+                borderRadius: 10,
+                alignItems: "center",
+              }}
+            >
+              <Text style={[styles.text, { opacity: 0.7, textAlign: "center" }]}>
+                No workout history yet.{"\n"}Complete some workouts to see your
+                progress!
+              </Text>
+            </View>
+          ) : (
+            <>
+              {/* Exercise Selector */}
+              <View
+                style={{
+                  backgroundColor: "#333742",
+                  borderRadius: 10,
+                  borderWidth: 2,
+                  borderColor: "#522687",
+                  marginBottom: 15,
+                  overflow: "hidden",
+                }}
+              >
+                <Text
+                  style={[
+                    styles.text,
+                    {
+                      paddingHorizontal: 15,
+                      paddingTop: 10,
+                      fontSize: 14,
+                      color: "#A8AEBC",
+                    },
+                  ]}
+                >
+                  Select Exercise:
+                </Text>
+                <Picker
+                  selectedValue={selectedGraphExercise}
+                  onValueChange={(value) => setSelectedGraphExercise(value)}
+                  style={{
+                    color: "#fff",
+                    backgroundColor: "transparent",
+                  }}
+                  dropdownIconColor="#A8AEBC"
+                >
+                  {exercisesInHistory.map((ex) => (
+                    <Picker.Item
+                      key={ex.id}
+                      label={ex.name}
+                      value={ex.id}
+                    />
+                  ))}
+                </Picker>
+              </View>
+
+              {/* Metric Selector */}
+              <View
+                style={{
+                  flexDirection: "row",
+                  gap: 10,
+                  marginBottom: 20,
+                }}
+              >
+                <TouchableOpacity
+                  style={{
+                    flex: 1,
+                    backgroundColor:
+                      graphMetric === "volume" ? "#522687" : "#6D7381",
+                    padding: 15,
+                    borderRadius: 10,
+                    alignItems: "center",
+                  }}
+                  onPress={() => setGraphMetric("volume")}
+                >
+                  <Text style={[styles.text, { fontWeight: "bold" }]}>
+                    Total Volume
+                  </Text>
+                  <Text style={[styles.text, { fontSize: 12, opacity: 0.8 }]}>
+                    (reps × weight)
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{
+                    flex: 1,
+                    backgroundColor:
+                      graphMetric === "maxWeight" ? "#522687" : "#6D7381",
+                    padding: 15,
+                    borderRadius: 10,
+                    alignItems: "center",
+                  }}
+                  onPress={() => setGraphMetric("maxWeight")}
+                >
+                  <Text style={[styles.text, { fontWeight: "bold" }]}>
+                    Max Weight
+                  </Text>
+                  <Text style={[styles.text, { fontSize: 12, opacity: 0.8 }]}>
+                    (heaviest set)
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Chart */}
+              {chartData && chartData.datasets[0].data.length > 0 ? (
+                <View
+                  style={{
+                    backgroundColor: "#333742",
+                    borderRadius: 10,
+                    padding: 10,
+                    alignItems: "center",
+                  }}
+                >
+                  <LineChart
+                    data={chartData}
+                    width={screenWidth - 60}
+                    height={280}
+                    chartConfig={chartConfig}
+                    bezier
+                    style={{
+                      borderRadius: 10,
+                    }}
+                    withInnerLines={true}
+                    withOuterLines={true}
+                    withVerticalLines={false}
+                    withHorizontalLines={true}
+                    withDots={true}
+                    withShadow={false}
+                    yAxisSuffix={graphMetric === "volume" ? "" : "lb"}
+                    formatYLabel={(value) => Math.round(value).toString()}
+                  />
+                  <Text
+                    style={[
+                      styles.text,
+                      { marginTop: 10, fontSize: 12, opacity: 0.7 },
+                    ]}
+                  >
+                    {graphMetric === "volume"
+                      ? "Total weight lifted per workout"
+                      : "Heaviest weight per workout"}
+                  </Text>
+                </View>
+              ) : (
+                <View
+                  style={{
+                    backgroundColor: "#333742",
+                    padding: 20,
+                    borderRadius: 10,
+                    alignItems: "center",
+                  }}
+                >
+                  <Text
+                    style={[styles.text, { opacity: 0.7, textAlign: "center" }]}
+                  >
+                    No data available for this exercise yet.
+                  </Text>
+                </View>
+              )}
+            </>
+          )}
+        </View>
+
+        {/* Personal Records Section (Placeholder) */}
+        <Text style={[styles.listHeader, { marginTop: 40 }]}>
+          🏆 Personal Records
+        </Text>
         <View
           style={{
-            flexDirection: "row",
-            justifyContent: "center",
-            gap: 10,
-            width: "80%",
-            marginTop: 20,
+            backgroundColor: "#333742",
+            padding: 20,
+            borderRadius: 10,
+            marginTop: 10,
+            width: "90%",
+            alignItems: "center",
+            marginBottom: 30,
           }}
         >
-          <TouchableOpacity
-            style={styles.editButton}
-            onPress={handleAddExercise}
-          >
-            <Text style={styles.text}>Add Exercise</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.deleteButton}
-            onPress={handleEditExercise}
-          >
-            <Text style={styles.text}>Edit Exercise</Text>
-          </TouchableOpacity>
+          <Text style={[styles.text, { opacity: 0.7 }]}>
+            Coming soon: Track your all-time bests!
+          </Text>
         </View>
-
-        <Text style={[styles.listHeader, { marginTop: 30 }]}>
-          Personal Records!
-        </Text>
-        {/* Will make a personal records section when I create the table for it */}
       </View>
-
-      {/* Modal */}
-      <Modal visible={modalVisible} transparent={true}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>
-              {isEditing ? "Edit Exercise" : "Add New Exercise"}
-            </Text>
-
-            {/* Picker only when editing */}
-            {isEditing && (
-              <Picker
-                selectedValue={selectedExercise}
-                onValueChange={(itemValue) => setSelectedExercise(itemValue)}
-                style={{ width: "100%", marginBottom: 10 }}
-              >
-                {exerciseList.map((ex) => (
-                  <Picker.Item key={ex.id} label={ex.name} value={ex.id} />
-                ))}
-              </Picker>
-            )}
-
-            {/* TextInput for new name */}
-            <TextInput
-              placeholder="Exercise name"
-              placeholderTextColor="#999"
-              style={styles.modalTextInput}
-              value={exerciseName}
-              onChangeText={setExerciseName}
-            />
-
-            {/* Save / Cancel buttons */}
-            <View style={styles.modalButtonRow}>
-              <TouchableOpacity
-                style={styles.editButton}
-                onPress={saveExercise}
-              >
-                <Text style={styles.text}>Save</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.deleteButton}
-                onPress={() => setModalVisible(false)}
-              >
-                <Text style={styles.text}>Cancel</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-      <LineChart
-        data={chartData}
-        width={400}
-        height={400}
-        chartConfig={chartConfig}
-      />
-    </View>
+    </ScrollView>
   );
 }
