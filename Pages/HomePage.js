@@ -1,17 +1,21 @@
 import { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { Text, View, Alert, TouchableOpacity, ScrollView, Switch, ActivityIndicator } from 'react-native';
+import { Text, View, Button, Alert, TouchableOpacity, ScrollView, Switch, ActivityIndicator } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { styles, colors } from '../styles';
 import RoutineService from '../services/RoutineService';
+import UserService from '../services/UserService';
+import ProfileModal from '../ReusableComponents/ProfileSetup';
 
 export default function HomePage({ navigation }) {
   const [isPaidUser, setIsPaidUser] = useState(true);
   const [userRoutines, setUserRoutines] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [profileVisible, setProfileVisible] = useState(false);
 
   useEffect(() => {
     loadUserRoutines();
+    checkProfile();
   }, []);
 
   useEffect(() => {
@@ -33,6 +37,19 @@ export default function HomePage({ navigation }) {
     } finally {
       setIsLoading(false);
     }
+  };
+
+    const checkProfile = async () => {
+    const profile = await UserService.getUserProfile();
+
+    // If no profile exists → force modal open
+    if (!profile) {
+      setProfileVisible(true);
+    }
+  };
+
+  const handleProfileSaved = () => {
+    setProfileVisible(false);  // close modal
   };
 
   const startRoutine = (routine) => {
@@ -188,6 +205,11 @@ export default function HomePage({ navigation }) {
             ))
           )}
         </View>
+
+        <ProfileModal
+          visible={profileVisible}
+          onClose={handleProfileSaved}
+        />
 
         {/* Developer Testing Section */}
         <View style={{ backgroundColor: '#2d1b3d', padding: 16, borderRadius: 10, borderWidth: 2, borderColor: '#8338ec', marginBottom: 20 }}>

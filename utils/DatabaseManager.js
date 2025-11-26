@@ -123,6 +123,16 @@ export const DatabaseManager = {
         FOREIGN KEY (workoutExerciseId) REFERENCES workout_exercises(id)
       );
     `);
+
+    //User profile table
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS user_profile (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        age INTEGER,
+        gender TEXT
+      );
+    `);
     
     console.log('Tables created successfully');
   },
