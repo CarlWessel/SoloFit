@@ -324,7 +324,7 @@ export default function Profile({ navigation }) {
           <Text style={styles.text}>Age: {age}</Text>
           <Text style={styles.text}>Gender: {gender}</Text>
           <TouchableOpacity
-            style={[styles.editButton, { marginTop: 15 }]}
+            style={[styles.yellowButton, { marginTop: 15 }]}
             onPress={() => setEditProfileVisible(true)}
           >
             <Text style={styles.text}>Edit Profile</Text>
@@ -335,11 +335,11 @@ export default function Profile({ navigation }) {
       <View style={styles.main}>
         {/* Exercise Controls*/}
         <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 10, width: '80%', marginTop: 20 }}>
-          <TouchableOpacity style={styles.editButton} onPress={handleAddExercise}>
+          <TouchableOpacity style={styles.yelloeButton} onPress={handleAddExercise}>
             <Text style={styles.text}>Add Exercise</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.deleteButton} onPress={handleEditExercise}>
+          <TouchableOpacity style={styles.redButton} onPress={handleEditExercise}>
             <Text style={styles.text}>Edit Exercise</Text>
           </TouchableOpacity>
         </View>
