@@ -102,8 +102,8 @@ export const styles = StyleSheet.create({
         fontWeight: '500'
     },
     listSubheader: {
-        color: colors.accent,
-        fontSize: 19,
+        color: colors.textLight,
+        fontSize: 16,
         paddingBottom: spacing.xs,
         fontWeight: '500'
     },

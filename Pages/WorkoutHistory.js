@@ -54,7 +54,6 @@ export default function WorkoutHistory({ navigation }) {
   const renderListItem = ({ item }) => {
     const isExpanded = !!expandedIds[item.id];
 
-    const start = new Date(item.startDateTime);
     const end = new Date(item.endDateTime);
 
     return (
@@ -74,30 +73,23 @@ export default function WorkoutHistory({ navigation }) {
                 {item.name}
               </Text>
 
-              {/* Date */}
+              {/* DateTime */}
               <Text style={styles.listSubheader}>
-                {start.toLocaleDateString()}
-              </Text>
-
-              {/* Time range */}
-              <Text style={styles.listSubheader}>
-                {start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}{" - "}
-                {end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                {end.toLocaleDateString()} {end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </Text>
             </View>
 
             {/* Dropdown chevron */}
             <MaterialIcons
               name={isExpanded ? 'expand-less' : 'expand-more'}
-              size={24}
-              style={{ marginLeft: 8 }}
+              style={styles.listHeader}
             />
           </View>
         </TouchableOpacity>
 
         {/* Expanded content: exercises, sets, notes, buttons */}
         {isExpanded && (
-          <View style={{ marginTop: 8 }}>
+          <View style={{ marginBottom: 8 }}>
             {/* Exercises and sets */}
             {item.exercises.map((ex) => (
               <View key={ex.exerciseId} style={{ marginVertical: 4 }}>
@@ -112,30 +104,30 @@ export default function WorkoutHistory({ navigation }) {
                 ))}
               </View>
             ))}
+          </View>
+        )}        
 
-            {/* Notes */}
-            {item.notes ? (
-              <Text style={styles.listTextHighlight}>Notes: {item.notes}</Text>
-            ) : null}
+        {/* Notes */}
+        {item.notes ? (
+          <Text style={styles.listTextHighlight}>Note: {item.notes}</Text>
+        ) : null}
 
-            {/* Edit/Delete buttons (only within 14 days) */}
-            {(today - new Date(item.endDateTime) <= 14 * 24 * 60 * 60 * 1000) && (
-              <View style={styles.buttonRow}>
-                <TouchableOpacity
-                  style={styles.yellowButton}
-                  onPress={() => editWorkout(item.id)}
-                >
-                  <Text style={styles.listText}>Edit</Text>
-                </TouchableOpacity>
+        {/* Edit/Delete buttons (only within 14 days) */}
+        {(today - new Date(item.endDateTime) <= 14 * 24 * 60 * 60 * 1000) && (
+          <View style={styles.buttonRow}>
+            <TouchableOpacity
+              style={styles.yellowButton}
+              onPress={() => editWorkout(item.id)}
+            >
+              <Text style={styles.listText}>Edit</Text>
+            </TouchableOpacity>
 
-                <TouchableOpacity
-                  style={styles.redButton}
-                  onPress={() => deleteWorkout(item.id)}
-                >
-                  <Text style={styles.listText}>Delete</Text>
-                </TouchableOpacity>
-              </View>
-            )}
+            <TouchableOpacity
+              style={styles.redButton}
+              onPress={() => deleteWorkout(item.id)}
+            >
+              <Text style={styles.listText}>Delete</Text>
+            </TouchableOpacity>
           </View>
         )}
       </View>
