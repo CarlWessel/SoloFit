@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  TextInput,
-  ScrollView,
-  Alert,
-} from "react-native";
+import { View, Text, TouchableOpacity, TextInput, ScrollView, Alert, KeyboardAvoidingView, Platform } from "react-native";
 import { styles, colors, spacing } from "../styles";
 import { Picker } from "@react-native-picker/picker";
 import RoutineService from "../services/RoutineService";
@@ -150,25 +143,10 @@ export default function AddRoutine({ navigation }) {
   const RenderNewExerciseForm = ({ exercise }) => (
     <View style={{ paddingTop: 10 }}>
       <View
-        style={{
-          borderWidth: 1,
-          borderColor: colors.border,
-          borderRadius: 8,
-          padding: 6,
-          margin: 10,
-          backgroundColor: colors.primary,
-        }}
+        style={styles.exerciseForm}
       >
         <View
-          style={{
-            flex: 1,
-            borderWidth: 1,
-            borderColor: colors.border,
-            borderRadius: 1,
-            backgroundColor: colors.background,
-            height: 40,
-            justifyContent: "center",
-          }}
+          style={styles.exerciseDropdown}
         >
           <Picker
             selectedValue={exercise.exerciseId}
@@ -183,15 +161,7 @@ export default function AddRoutine({ navigation }) {
         </View>
       </View>
       <View
-        style={{
-          alignItems: "center",
-          borderWidth: 1,
-          borderColor: colors.border,
-          borderRadius: 8,
-          padding: 10,
-          margin: 10,
-          backgroundColor: colors.primary,
-        }}
+        style={styles.exerciseInput}
       >
         <RenderSets exercise={exercise} />
         <View
@@ -242,21 +212,12 @@ export default function AddRoutine({ navigation }) {
         return (
           <View
             key={set.id}
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-              width: "100%",
-              marginVertical: 5,
-            }}
+            style={styles.setRow}
           >
-            <Text style={[styles.headerText]}>Set {set.id}</Text>
+            <Text style={[styles.listSubheader]}>Set {set.id}</Text>
 
             <TextInput
-              style={[
-                styles.textInput,
-                { flex: 1, marginRight: 5, paddingLeft: 7 },
-              ]}
+              style={styles.textInput}
               placeholder="Reps"
               placeholderTextColor={colors.accent}
               value={localReps}
@@ -267,7 +228,7 @@ export default function AddRoutine({ navigation }) {
             />
 
             <TextInput
-              style={[styles.textInput, { flex: 1 }]}
+              style={styles.textInput}
               placeholder="Weight"
               placeholderTextColor={colors.accent}
               value={localWeight}
@@ -289,85 +250,59 @@ export default function AddRoutine({ navigation }) {
 
   return (
     <View style={[styles.container]}>
-      <ScrollView style={styles.container}>
-        <View
-          style={[
-            styles.header,
-            {
-              justifyContent: "center",
-              alignItems: "center",
-            },
-          ]}
-        >
-          <Text style={[styles.headerText, { fontSize: 24, marginBottom: 20 }]}>
-            Add Routine
-          </Text>
-        </View>
-        <View
-          style={{
-            alignItems: "center",
-            padding: 10,
-            backgroundColor: colors.primary,
-          }}
-        >
-          <TextInput
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
+      >
+        <ScrollView style={styles.container}>
+          <View
             style={[
+              styles.header,
               {
-                height: 40,
-                width: "90%",
-                borderWidth: 1,
-                borderColor: colors.border,
-                borderRadius: 4,
-                paddingHorizontal: 8,
-                color: colors.accent,
-                backgroundColor: colors.background,
+                justifyContent: "center",
+                alignItems: "center",
               },
             ]}
-            placeholder="Routine Name"
-            placeholderTextColor={colors.accent}
-            value={routineName}
-            onChangeText={setRoutineName}
-          />
-        </View>
-        {/* END HEADER */}
-        {exercises.map((exercise) => (
-          <RenderNewExerciseForm key={exercise.id} exercise={exercise} />
-        ))}
-      </ScrollView>
-      {/*BUTTONS VIEW   */}
+          >
+            <Text style={[styles.headerText, { fontSize: 24, marginBottom: 20 }]}>
+              Add Routine
+            </Text>
+            <TextInput
+              style={styles.titleInput}
+              placeholder="Routine Name"
+              placeholderTextColor={colors.accent}
+              value={routineName}
+              onChangeText={setRoutineName}
+            />
+          </View>
+          {/* END HEADER */}
+          {exercises.map((exercise) => (
+            <RenderNewExerciseForm key={exercise.id} exercise={exercise} />
+          ))}
+        </ScrollView>        
+      </KeyboardAvoidingView>
+
       <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          marginTop: "auto",
-        }}
+        style={styles.bottomButtonView}
       >
         <TouchableOpacity
-          style={[
-            styles.startButton,
-            {
-              backgroundColor: colors.accent,
-              width: "auto",
-            },
-          ]}
+          style={[styles.yellowButton,
+            { paddingHorizontal: 16 }]}
           onPress={() => navigation.goBack()}
         >
           <Text style={styles.text}>Cancel</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.startButton, {}]}
+          style={[styles.yellowButton,
+            { paddingHorizontal: 16 }]}
           onPress={addExercise}
         >
           <Text style={styles.text}>Add Exercise</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[
-            styles.startButton,
-            {
-              backgroundColor: colors.accent,
-              width: "auto",
-            },
-          ]}
+          style={[styles.yellowButton,
+            { paddingHorizontal: 16 }]}
           onPress={saveRoutine}
         >
           <Text style={styles.text}>Save Routine</Text>

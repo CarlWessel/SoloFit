@@ -81,11 +81,11 @@ export default function Profile({ navigation }) {
 
         
         <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 10, width: '80%', marginTop: 20 }}>
-          <TouchableOpacity style={styles.editButton} onPress={handleAddExercise}>
+          <TouchableOpacity style={styles.yellowButton} onPress={handleAddExercise}>
             <Text style={styles.text}>Add Exercise</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.deleteButton} onPress={handleEditExercise}>
+          <TouchableOpacity style={styles.redButton} onPress={handleEditExercise}>
             <Text style={styles.text}>Edit Exercise</Text>
           </TouchableOpacity>
         </View>
@@ -124,11 +124,11 @@ export default function Profile({ navigation }) {
 
             {/* Save / Cancel buttons */}
             <View style={styles.modalButtonRow}>
-              <TouchableOpacity style={styles.editButton} onPress={saveExercise}>
+              <TouchableOpacity style={styles.yellowButton} onPress={saveExercise}>
                 <Text style={styles.text}>Save</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.deleteButton} onPress={() => setModalVisible(false)}>
+              <TouchableOpacity style={styles.redButton} onPress={() => setModalVisible(false)}>
                 <Text style={styles.text}>Cancel</Text>
               </TouchableOpacity>
             </View>

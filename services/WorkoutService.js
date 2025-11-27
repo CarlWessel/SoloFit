@@ -2,13 +2,13 @@ import { DatabaseManager } from '../utils/DatabaseManager';
 
 export default class WorkoutService {
 
-  static async addWorkout({ startDateTime, endDateTime, exercises = [], notes = '' }) {
+  static async addWorkout({ name, startDateTime, endDateTime, exercises = [], notes = '' }) {
     const db = await DatabaseManager.getDB();
 
     // Insert workout
     const result = await db.runAsync(
-      `INSERT INTO workout (startDateTime, endDateTime, notes) VALUES (?, ?, ?);`,
-      [startDateTime, endDateTime, notes]
+      `INSERT INTO workout (name, startDateTime, endDateTime, notes) VALUES (?, ?, ?, ?);`,
+      [name, startDateTime, endDateTime, notes]
     );
     const workoutId = result.lastInsertRowId;
 
@@ -69,13 +69,13 @@ export default class WorkoutService {
     return workouts;
   }
 
-  static async editWorkout(workoutId, { startDateTime, endDateTime, notes = '', exercises = [] }) {
+  static async editWorkout(name, workoutId, { startDateTime, endDateTime, notes = '', exercises = [] }) {
     const db = await DatabaseManager.getDB();
 
     // Update workout info
     await db.runAsync(
-      `UPDATE workout SET startDateTime = ?, endDateTime = ?, notes = ? WHERE id = ?;`,
-      [startDateTime, endDateTime, notes, workoutId]
+      `UPDATE workout SET name = ?, startDateTime = ?, endDateTime = ?, notes = ? WHERE id = ?;`,
+      [name, startDateTime, endDateTime, notes, workoutId]
     );
 
     // Delete all linked exercises and sets
