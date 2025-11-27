@@ -135,7 +135,7 @@ export default function UseWorkout({ navigation, route }) {
             <TextInput
               style={styles.textInput}
               placeholder="Reps"
-              placeholderTextColor={colors.accent}
+              placeholderTextColor={colors.textLight}
               keyboardType="numeric"
               value={localReps}
               onChangeText={setLocalReps}
@@ -147,7 +147,7 @@ export default function UseWorkout({ navigation, route }) {
             <TextInput
               style={styles.textInput}
               placeholder="Weight"
-              placeholderTextColor={colors.accent}
+              placeholderTextColor={colors.textLight}
               keyboardType="numeric"
               value={localWeight}
               onChangeText={setLocalWeight}
@@ -168,33 +168,46 @@ export default function UseWorkout({ navigation, route }) {
 
   return (
     <View style={[styles.container]}>
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
-      >
-        <ScrollView style={styles.container}>
-          <View
+      <ScrollView style={styles.container}>
+        <View
+          style={[
+            styles.header,
+            { justifyContent: "center", alignItems: "center" },
+          ]}
+        >
+          <Text style={[styles.headerText, { fontSize: 24, marginBottom: spacing.sm }]}>
+            {workoutName}
+          </Text>
+
+          <Text style={[styles.text, { fontSize: 14, opacity: 0.8 }]}>
+            {isPremade ? "Premade Workout" : "My Routine"}
+          </Text>
+
+          <Text style={[styles.text, { marginVertical: 5 }]}>
+            Workout Date:
+          </Text>
+
+          <TextInput
             style={[
-              styles.header,
-              { justifyContent: "center", alignItems: "center" },
+              styles.titleInput,
+              {
+                height: 40,
+                width: "90%",
+                borderWidth: 1,
+                borderColor: colors.textLight,
+                borderRadius: 4,
+                paddingHorizontal: 8,
+                backgroundColor: colors.background,
+                color: colors.textLight,
+                textAlign: "center",
+              },
             ]}
-          >
-            <Text style={[styles.headerText, { fontSize: 24, marginBottom: spacing.sm }]}>
-              {workoutName}
-            </Text>
-            <Text style={[styles.text, { fontSize: 14, opacity: 0.8 }]}>
-              {isPremade ? "Premade Workout" : "My Routine"}
-            </Text>
-            <Text style={[styles.text, { marginVertical: 5 }]}>Workout Date:</Text>
-            <TextInput
-              style={[styles.titleInput, { textAlign: "center" }]}
-              placeholder="YYYY-MM-DD"
-              placeholderTextColor={colors.accent}
-              value={workoutDate}
-              onChangeText={setWorkoutDate}
-            />
-          </View>
+            placeholder="YYYY-MM-DD"
+            placeholderTextColor={colors.textLight}
+            value={workoutDate}
+            onChangeText={setWorkoutDate}
+          />
+        </View>
 
           {exercises.map((exercise) => (
             <RenderExercise key={exercise.id} exercise={exercise} />
@@ -212,11 +225,11 @@ export default function UseWorkout({ navigation, route }) {
               style={[styles.noteInput, { height: Math.max(40, inputHeight) }]}
               placeholder="Write a note..."
               placeholderTextColor={colors.accent}
+              color={colors.textLight}
             />
           </View>
 
-        </ScrollView>
-      </KeyboardAvoidingView>     
+        </ScrollView> 
 
       <View
         style={styles.bottomButtonView}

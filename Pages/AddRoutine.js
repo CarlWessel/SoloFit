@@ -143,16 +143,31 @@ export default function AddRoutine({ navigation }) {
   const RenderNewExerciseForm = ({ exercise }) => (
     <View style={{ paddingTop: 10 }}>
       <View
-        style={styles.exerciseForm}
+        style={{
+          borderWidth: 1,
+          borderColor: colors.lighter,
+          borderRadius: 8,
+          padding: 6,
+          margin: 10,
+          backgroundColor: colors.primary,
+        }}
       >
         <View
-          style={styles.exerciseDropdown}
+          style={{
+            flex: 1,
+            borderWidth: 1,
+            borderColor: colors.lighter,
+            borderRadius: 1,
+            backgroundColor: colors.background,
+            height: 40,
+            justifyContent: "center",
+          }}
         >
           <Picker
             selectedValue={exercise.exerciseId}
             onValueChange={(value) => onExerciseChanged(exercise.id, value)}
-            style={{ fontSize: 16, color: colors.accent, width: "100%" }}
-            dropdownIconColor={colors.accent}
+            style={{ fontSize: 16, color: colors.textLight, width: "100%" }}
+            dropdownIconColor={colors.textLight}
           >
             {exercisesList.map((ex) => (
               <Picker.Item key={ex.value} label={ex.label} value={ex.value} />
@@ -161,7 +176,15 @@ export default function AddRoutine({ navigation }) {
         </View>
       </View>
       <View
-        style={styles.exerciseInput}
+        style={{
+          alignItems: "center",
+          borderWidth: 1,
+          borderColor: colors.lighter,
+          borderRadius: 8,
+          padding: 10,
+          margin: 10,
+          backgroundColor: colors.primary,
+        }}
       >
         <RenderSets exercise={exercise} />
         <View
@@ -219,7 +242,7 @@ export default function AddRoutine({ navigation }) {
             <TextInput
               style={styles.textInput}
               placeholder="Reps"
-              placeholderTextColor={colors.accent}
+              placeholderTextColor={colors.textLight}
               value={localReps}
               onChangeText={setLocalReps}
               onEndEditing={(e) =>
@@ -230,7 +253,7 @@ export default function AddRoutine({ navigation }) {
             <TextInput
               style={styles.textInput}
               placeholder="Weight"
-              placeholderTextColor={colors.accent}
+              placeholderTextColor={colors.textLight}
               value={localWeight}
               onChangeText={setLocalWeight}
               onEndEditing={(e) =>
@@ -250,39 +273,52 @@ export default function AddRoutine({ navigation }) {
 
   return (
     <View style={[styles.container]}>
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
-      >
-        <ScrollView style={styles.container}>
-          <View
+      <ScrollView style={styles.container}>
+        <View
+          style={[
+            styles.header,
+            {
+              justifyContent: "center",
+              alignItems: "center",
+            },
+          ]}
+        >
+          <Text style={[styles.headerText, { fontSize: 24, marginBottom: 20 }]}>
+            Add Routine
+          </Text>
+        </View>
+        <View
+          style={{
+            alignItems: "center",
+            padding: 10,
+            backgroundColor: colors.primary,
+          }}
+        >
+          <TextInput
             style={[
-              styles.header,
               {
-                justifyContent: "center",
-                alignItems: "center",
+                height: 40,
+                width: "90%",
+                borderWidth: 1,
+                borderColor: colors.lighter,
+                borderRadius: 4,
+                paddingHorizontal: 8,
+                color: colors.textLight,
+                backgroundColor: colors.background,
               },
             ]}
-          >
-            <Text style={[styles.headerText, { fontSize: 24, marginBottom: 20 }]}>
-              Add Routine
-            </Text>
-            <TextInput
-              style={styles.titleInput}
-              placeholder="Routine Name"
-              placeholderTextColor={colors.accent}
-              value={routineName}
-              onChangeText={setRoutineName}
-            />
-          </View>
-          {/* END HEADER */}
-          {exercises.map((exercise) => (
-            <RenderNewExerciseForm key={exercise.id} exercise={exercise} />
-          ))}
-        </ScrollView>        
-      </KeyboardAvoidingView>
-
+            placeholder="Routine Name"
+            placeholderTextColor={colors.textLight}
+            value={routineName}
+            onChangeText={setRoutineName}
+          />
+        </View>
+        {/* END HEADER */}
+        {exercises.map((exercise) => (
+          <RenderNewExerciseForm key={exercise.id} exercise={exercise} />
+        ))}
+      </ScrollView>
+      {/*BUTTONS VIEW   */}
       <View
         style={styles.bottomButtonView}
       >

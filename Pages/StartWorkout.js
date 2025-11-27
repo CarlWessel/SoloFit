@@ -183,7 +183,7 @@ export default function StartWorkout({ navigation, route }) {
           <Picker
             selectedValue={exercise.exerciseId}
             onValueChange={(value) => onExerciseChanged(exercise.id, value)}
-            style={{ fontSize: 16, color: colors.accent, width: "100%" }}
+            style={{ fontSize: 16, color: colors.textLight, width: "100%" }}
             dropdownIconColor={colors.accent}
           >
             {exercisesList.map((ex) => (
@@ -252,7 +252,7 @@ export default function StartWorkout({ navigation, route }) {
             <TextInput
               style={styles.textInput}
               placeholder="Reps"
-              placeholderTextColor={colors.accent}
+              placeholderTextColor={colors.textLight}
               value={localReps}
               onChangeText={setLocalReps}
               onEndEditing={(e) =>
@@ -263,7 +263,7 @@ export default function StartWorkout({ navigation, route }) {
             <TextInput
               style={styles.textInput}
               placeholder="Weight"
-              placeholderTextColor={colors.accent}
+              placeholderTextColor={colors.textLight}
               value={localWeight}
               onChangeText={setLocalWeight}
               onEndEditing={(e) =>
@@ -302,6 +302,7 @@ export default function StartWorkout({ navigation, route }) {
               style={styles.titleInput}
               placeholder="Workout Name"
               placeholderTextColor={colors.accent}
+              color = {colors.textLight}
               value={workoutName}
               onChangeText={setWorkoutName}
             />
@@ -342,6 +343,7 @@ export default function StartWorkout({ navigation, route }) {
               style={[styles.noteInput, { height: Math.max(40, inputHeight) }]}
               placeholder="Write a note..."
               placeholderTextColor={colors.accent}
+              color = {colors.textLight}
             />
           </View>
         </ScrollView>
@@ -415,7 +417,7 @@ export default function StartWorkout({ navigation, route }) {
                   <Text
                     style={[
                       styles.text,
-                      { color: colors.accent, marginBottom: 5 },
+                      { color: colors.textLight, marginBottom: 5 },
                     ]}
                   >
                     {routine.name}

@@ -80,7 +80,7 @@ export default function HomePage({ navigation }) {
             style={[
               styles.startButton,
               {
-                backgroundColor: isPaidUser ? colors.accent : '#666',
+                backgroundColor: isPaidUser ? colors.button : '#666',
                 padding: 20,
                 opacity: isPaidUser ? 1 : 0.5,
               },
@@ -106,7 +106,7 @@ export default function HomePage({ navigation }) {
           <TouchableOpacity
             style={[
               styles.startButton,
-              { backgroundColor: colors.primary, padding: 20 },
+              { backgroundColor: colors.button, padding: 20 },
             ]}
             onPress={() =>
               navigation.navigate('AddRoutine', {
@@ -126,7 +126,7 @@ export default function HomePage({ navigation }) {
           <TouchableOpacity
             style={[
               styles.startButton,
-              { backgroundColor: '#8338ec', padding: 20 },
+              { backgroundColor: colors.button, padding: 20 },
             ]}
             onPress={() => navigation.navigate('PremadeRoutines')}
           >
@@ -146,7 +146,7 @@ export default function HomePage({ navigation }) {
               📚 My Routines
             </Text>
             <TouchableOpacity onPress={() => navigation.navigate('RoutineList')}>
-              <Text style={[styles.text, { color: colors.accent, fontSize: 14 }]}>
+              <Text style={[styles.text, { color: colors.lighter, fontSize: 14 }]}>
                 View All →
               </Text>
             </TouchableOpacity>
@@ -155,7 +155,7 @@ export default function HomePage({ navigation }) {
           {isLoading ? (
             <View
               style={{
-                backgroundColor: '#1a3a52',
+                backgroundColor: colors.accent,
                 padding: 20,
                 borderRadius: 10,
                 alignItems: 'center',
@@ -169,7 +169,7 @@ export default function HomePage({ navigation }) {
           ) : userRoutines.length === 0 ? (
             <View
               style={{
-                backgroundColor: '#1a3a52',
+                backgroundColor: colors.accent,
                 padding: 20,
                 borderRadius: 10,
                 alignItems: 'center',
@@ -185,7 +185,7 @@ export default function HomePage({ navigation }) {
               <TouchableOpacity
                 key={routine.id}
                 style={{
-                  backgroundColor: '#1a3a52',
+                  backgroundColor: colors.primary,
                   padding: 15,
                   borderRadius: 10,
                   marginBottom: 10,
@@ -198,7 +198,7 @@ export default function HomePage({ navigation }) {
                 <Text style={[styles.text, { fontSize: 12, opacity: 0.7 }]}>
                   {routine.exercises.length} exercises
                 </Text>
-                <Text style={[styles.text, { color: '#4CAF50', fontSize: 12, marginTop: 5 }]}>
+                <Text style={[styles.text, { color: '#2D1B3D', fontSize: 12, marginTop: 5 }]}>
                   Tap to start →
                 </Text>
               </TouchableOpacity>
@@ -212,29 +212,29 @@ export default function HomePage({ navigation }) {
         />
 
         {/* Developer Testing Section */}
-        <View style={{ backgroundColor: '#2d1b3d', padding: 16, borderRadius: 10, borderWidth: 2, borderColor: '#8338ec', marginBottom: 20 }}>
+        <View style={{ backgroundColor: colors.accent, padding: 16, borderRadius: 10, borderWidth: 2, borderColor: colors.lighter, marginBottom: 20 }}>
           <Text style={[styles.text, { fontSize: 16, marginBottom: 12, fontWeight: 'bold' }]}>
             🔧 Developer Testing
           </Text>
           
 
           {/* Testing Mode toggle */}
-          <View style={{ backgroundColor: '#1a3a52', padding: 16, borderRadius: 10, marginBottom: 8, alignItems: 'center' }}>
+          <View style={{ backgroundColor: colors.background, padding: 16, borderRadius: 10, marginBottom: 8, alignItems: 'center' }}>
             <Text style={[styles.text, { fontSize: 16, marginBottom: 12 }]}>🧪 Testing Mode</Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
               <Text style={[styles.text, { opacity: isPaidUser ? 0.5 : 1 }]}>Free User</Text>
               <Switch
                 value={isPaidUser}
                 onValueChange={setIsPaidUser}
-                trackColor={{ false: '#767577', true: colors.accent }}
-                thumbColor={isPaidUser ? colors.primary : '#f4f3f4'}
+                trackColor={{ false: '#767577', true: colors.lighter }}
+                thumbColor={isPaidUser ? colors.accent : '#f4f3f4'}
               />
               <Text style={[styles.text, { opacity: isPaidUser ? 1 : 0.5 }]}>Paid User</Text>
             </View>
             <Text
               style={[
                 styles.text,
-                { fontSize: 14, marginTop: 8, color: colors.accent },
+                { fontSize: 14, marginTop: 8, color: colors.border },
               ]}
             >
               Currently: {isPaidUser ? '💎 Paid (Full Access)' : '🆓 Free (Limited)'}
