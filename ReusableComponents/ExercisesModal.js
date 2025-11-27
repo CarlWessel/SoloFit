@@ -70,11 +70,11 @@ export default function ExerciseModal({
           />
 
           <View style={styles.modalButtonRow}>
-            <TouchableOpacity style={styles.editButton} onPress={saveExercise}>
+            <TouchableOpacity style={styles.yellowButton} onPress={saveExercise}>
               <Text style={styles.text}>Save</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.deleteButton} onPress={onClose}>
+            <TouchableOpacity style={styles.redButton} onPress={onClose}>
               <Text style={styles.text}>Cancel</Text>
             </TouchableOpacity>
           </View>

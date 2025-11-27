@@ -335,7 +335,7 @@ export default function Profile({ navigation }) {
       <View style={styles.main}>
         {/* Exercise Controls*/}
         <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 10, width: '80%', marginTop: 20 }}>
-          <TouchableOpacity style={styles.yelloeButton} onPress={handleAddExercise}>
+          <TouchableOpacity style={styles.yellowButton} onPress={handleAddExercise}>
             <Text style={styles.text}>Add Exercise</Text>
           </TouchableOpacity>
 
