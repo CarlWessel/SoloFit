@@ -157,10 +157,8 @@ export default function StartWorkout({ navigation, route }) {
 
       await WorkoutService.addWorkout({
         name: workoutName.trim(),
-        // date: new Date().toISOString(),
-        // toISOString() will pass it to UTC time, but we're going to change this to manually input I just ignore this problem for the moment
-        startDateTime: new Date().toISOString().slice(0, 16),
-        endDateTime: new Date().toISOString().slice(0, 16),
+        startDateTime: new Date().toISOString(),
+        endDateTime: new Date().toISOString(),
         exercises: exercisesData,
         notes: note,
       });
@@ -249,7 +247,7 @@ export default function StartWorkout({ navigation, route }) {
             key={set.id}
             style={styles.setRow}
           >
-            <Text style={[styles.listSubheader]}>Set {set.id}</Text>
+            <Text style={[styles.listHeader]}>Set {set.id}</Text>
 
             <TextInput
               style={styles.textInput}
@@ -333,7 +331,7 @@ export default function StartWorkout({ navigation, route }) {
           </View>
 
           <View style={styles.exerciseForm}>
-            <Text style={styles.listSubheader}>Note</Text>
+            <Text style={styles.listHeader}>Note</Text>
             <TextInput
               value={note}
               onChangeText={setNote}

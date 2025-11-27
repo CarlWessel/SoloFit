@@ -86,9 +86,8 @@ export default function UseWorkout({ navigation, route }) {
         return;
       }
       
-      // PLACEHOLDER: Set start time to beginning of day, end time to end of day
-      const startDateTime = new Date(workoutDateTime.setHours(0, 0, 0, 0)).toISOString();
-      const endDateTime = new Date(workoutDateTime.setHours(23, 59, 59, 999)).toISOString();
+      const startDateTime = new Date().toISOString();
+      const endDateTime = new Date().toISOString();
 
       await WorkoutService.addWorkout({
         name: workoutName.trim(),
@@ -129,7 +128,7 @@ export default function UseWorkout({ navigation, route }) {
             key={set.id}
             style={styles.setRow}
           >
-            <Text style={[styles.listSubheader, { flex: 0.4 }]}>
+            <Text style={[styles.listHeader, { flex: 0.4 }]}>
               Set {set.id}
             </Text>
 
@@ -202,7 +201,7 @@ export default function UseWorkout({ navigation, route }) {
           ))}
 
           <View style={styles.exerciseForm}>
-            <Text style={styles.listSubheader}>Note</Text>
+            <Text style={styles.listHeader}>Note</Text>
             <TextInput
               value={note}
               onChangeText={setNote}

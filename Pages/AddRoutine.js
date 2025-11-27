@@ -214,7 +214,7 @@ export default function AddRoutine({ navigation }) {
             key={set.id}
             style={styles.setRow}
           >
-            <Text style={[styles.listSubheader]}>Set {set.id}</Text>
+            <Text style={[styles.listHeader]}>Set {set.id}</Text>
 
             <TextInput
               style={styles.textInput}
