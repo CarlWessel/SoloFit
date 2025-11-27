@@ -52,7 +52,6 @@ export default function WorkoutHistory({ navigation }) {
   };
 
   const renderListItem = ({ item }) => {
-    console.log(item);
     const isExpanded = !!expandedIds[item.id];
 
     const start = new Date(item.startDateTime);
@@ -70,9 +69,9 @@ export default function WorkoutHistory({ navigation }) {
             }}
           >
             <View style={{ flex: 1 }}>
-              {/* Workout name (change 'name' to your actual field) */}
+              {/* Workout name */}
               <Text style={styles.listHeader}>
-                {item.name || 'Workout name here'}
+                {item.name}
               </Text>
 
               {/* Date */}
@@ -123,14 +122,14 @@ export default function WorkoutHistory({ navigation }) {
             {(today - new Date(item.endDateTime) <= 14 * 24 * 60 * 60 * 1000) && (
               <View style={styles.buttonRow}>
                 <TouchableOpacity
-                  style={styles.editButton}
+                  style={styles.yellowButton}
                   onPress={() => editWorkout(item.id)}
                 >
                   <Text style={styles.listText}>Edit</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={styles.deleteButton}
+                  style={styles.redButton}
                   onPress={() => deleteWorkout(item.id)}
                 >
                   <Text style={styles.listText}>Delete</Text>

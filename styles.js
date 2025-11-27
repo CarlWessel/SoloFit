@@ -62,7 +62,7 @@ export const styles = StyleSheet.create({
     startButton: {
         backgroundColor: colors.accent,
         padding: spacing.md,
-        borderRadius: 10,
+        borderRadius: 10
     },
     text: {
         color: colors.textLight,
@@ -78,6 +78,11 @@ export const styles = StyleSheet.create({
     },
     footerButton: {
         alignItems: 'center',
+    },
+    bottomButtonView: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        padding: 10
     },
     list: {
         marginVertical: spacing.md,
@@ -113,24 +118,25 @@ export const styles = StyleSheet.create({
     buttonRow: {
         flexDirection: 'row',
         justifyContent: 'flex-end',
-        gap: spacing.md,
         marginTop: spacing.md,
     },
-    editButton: {
+    yellowButton: {
         backgroundColor: colors.accent,
         paddingVertical: 10,
         paddingHorizontal: 20,
         borderRadius: 10,
         alignItems: 'center',
         justifyContent: 'center',
+        marginHorizontal:spacing.xs
     },
-    deleteButton: {
+    redButton: {
         backgroundColor: colors.delete,
         paddingVertical: 10,
         paddingHorizontal: 20,
         borderRadius: 10,
         alignItems: 'center',
         justifyContent: 'center',
+        marginHorizontal:spacing.xs
     },
     textInput: {
         flex: 1,
@@ -179,5 +185,56 @@ export const styles = StyleSheet.create({
         justifyContent: 'space-between',
         width: '100%',
     },
-
+    exerciseForm: {
+        borderWidth: 1,
+        borderColor: colors.border,
+        borderRadius: 8,
+        padding: 10,
+        margin: 10,
+        backgroundColor: colors.primary,
+    },
+    exerciseDropdown: {
+        flex: 1,
+        borderWidth: 1,
+        borderColor: colors.border,
+        borderRadius: 1,
+        backgroundColor: colors.background,
+        height: 40,
+        justifyContent: "center",
+    },
+    setRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        width: "100%",
+        marginVertical: 5,
+    },
+    exerciseInput: {
+        alignItems: "center",
+        borderWidth: 1,
+        borderColor: colors.border,
+        borderRadius: 8,
+        padding: 10,
+        margin: 10,
+        backgroundColor: colors.primary,
+    },
+    titleInput: {
+        height: 40,
+        width: "90%",
+        borderWidth: 1,
+        borderColor: colors.border,
+        borderRadius: 4,
+        paddingHorizontal: 8,
+        color: colors.accent,
+        backgroundColor: colors.background,
+    },
+    noteInput: {
+        color: colors.accent,
+        borderWidth: 1,
+        borderColor: colors.border,
+        borderRadius: 4,
+        paddingHorizontal: 8,
+        textAlignVertical: "top",
+        backgroundColor: colors.background,
+    },
 });

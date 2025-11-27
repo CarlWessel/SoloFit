@@ -21,7 +21,7 @@ export default function AddExercises({ navigation }){
       </Text>
 
       <TouchableOpacity
-        style={[styles.startButton]}
+        style={styles.startButton}
         onPress={() => navigation.goBack()}
       >
         <Text style={styles.text}>Go Back</Text>

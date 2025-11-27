@@ -95,6 +95,7 @@ export const DatabaseManager = {
     await db.execAsync(`
       CREATE TABLE IF NOT EXISTS workout (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
         startDateTime TEXT NOT NULL,
         endDateTime TEXT NOT NULL,
         notes TEXT

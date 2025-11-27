@@ -229,7 +229,7 @@ export default function HomePage({ navigation }) {
           <Text>Profile</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.footerButton} onPress={() => {}}>
+        <TouchableOpacity style={styles.footerButton} onPress={() => navigation.navigate('StartWorkout')}>
           <MaterialIcons name="add-circle-outline" size={28} color="black" />
           <Text>Add</Text>
         </TouchableOpacity>

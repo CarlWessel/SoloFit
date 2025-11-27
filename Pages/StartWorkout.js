@@ -1,14 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  TextInput,
-  ScrollView,
-  Alert,
-  Modal,
-  FlatList,
-} from "react-native";
+import { View, Text, TouchableOpacity, TextInput, ScrollView, Alert, Modal, FlatList, KeyboardAvoidingView, Platform } from "react-native";
 import { styles, colors, spacing } from "../styles";
 import { Picker } from "@react-native-picker/picker";
 import RoutineService from "../services/RoutineService";
@@ -24,6 +15,8 @@ export default function StartWorkout({ navigation, route }) {
   const [showAddModal, setShowAddModal] = useState(false);
   const [routines, setRoutines] = useState([]);
   const [premadeRoutines, setPremadeRoutines] = useState([]);
+  const [note, setNote] = useState("");
+  const [inputHeight, setInputHeight] = useState(40);
 
   useEffect(() => {
     loadExercises();
@@ -163,15 +156,13 @@ export default function StartWorkout({ navigation, route }) {
       }));
 
       await WorkoutService.addWorkout({
-        // question: do we want a name for workouthistory
-        // name: workoutName.trim(),
+        name: workoutName.trim(),
         // date: new Date().toISOString(),
-
         // toISOString() will pass it to UTC time, but we're going to change this to manually input I just ignore this problem for the moment
         startDateTime: new Date().toISOString().slice(0, 16),
         endDateTime: new Date().toISOString().slice(0, 16),
         exercises: exercisesData,
-        notes: "TODO: Add UI for notes and workout name",
+        notes: note,
       });
 
       Alert.alert("Success", "Workout saved!", [
@@ -186,25 +177,10 @@ export default function StartWorkout({ navigation, route }) {
   const RenderExerciseForm = ({ exercise }) => (
     <View style={{ paddingTop: 10 }}>
       <View
-        style={{
-          borderWidth: 1,
-          borderColor: colors.border,
-          borderRadius: 8,
-          padding: 6,
-          margin: 10,
-          backgroundColor: colors.primary,
-        }}
+        style={styles.exerciseForm}
       >
         <View
-          style={{
-            flex: 1,
-            borderWidth: 1,
-            borderColor: colors.border,
-            borderRadius: 1,
-            backgroundColor: colors.background,
-            height: 40,
-            justifyContent: "center",
-          }}
+          style={styles.exerciseDropdown}
         >
           <Picker
             selectedValue={exercise.exerciseId}
@@ -219,15 +195,7 @@ export default function StartWorkout({ navigation, route }) {
         </View>
       </View>
       <View
-        style={{
-          alignItems: "center",
-          borderWidth: 1,
-          borderColor: colors.border,
-          borderRadius: 8,
-          padding: 10,
-          margin: 10,
-          backgroundColor: colors.primary,
-        }}
+        style={styles.exerciseInput}
       >
         <RenderSets exercise={exercise} />
         <View
@@ -279,21 +247,12 @@ export default function StartWorkout({ navigation, route }) {
         return (
           <View
             key={set.id}
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-              width: "100%",
-              marginVertical: 5,
-            }}
+            style={styles.setRow}
           >
-            <Text style={[styles.headerText]}>Set {set.id}</Text>
+            <Text style={[styles.listSubheader]}>Set {set.id}</Text>
 
             <TextInput
-              style={[
-                styles.textInput,
-                { flex: 1, marginRight: 5, paddingLeft: 7 },
-              ]}
+              style={styles.textInput}
               placeholder="Reps"
               placeholderTextColor={colors.accent}
               value={localReps}
@@ -304,7 +263,7 @@ export default function StartWorkout({ navigation, route }) {
             />
 
             <TextInput
-              style={[styles.textInput, { flex: 1 }]}
+              style={styles.textInput}
               placeholder="Weight"
               placeholderTextColor={colors.accent}
               value={localWeight}
@@ -326,61 +285,77 @@ export default function StartWorkout({ navigation, route }) {
 
   return (
     <View style={[styles.container]}>
-      <ScrollView style={styles.container}>
-        <View
-          style={[
-            styles.header,
-            { justifyContent: "center", alignItems: "center" },
-          ]}
-        >
-          <Text style={[styles.headerText, { fontSize: 24, marginBottom: 20 }]}>
-            Start Workout
-          </Text>
-        </View>
-
-        <View
-          style={{
-            alignItems: "center",
-            padding: 10,
-            backgroundColor: colors.primary,
-          }}
-        >
-          <TextInput
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
+      >
+        <ScrollView style={styles.container}>
+          <View
             style={[
-              {
-                height: 40,
-                width: "90%",
-                borderWidth: 1,
-                borderColor: colors.border,
-                borderRadius: 4,
-                paddingHorizontal: 8,
-                color: colors.accent,
-                backgroundColor: colors.background,
-              },
+              styles.header,
+              { justifyContent: "center", alignItems: "center" },
             ]}
-            placeholder="Workout Name"
-            placeholderTextColor={colors.accent}
-            value={workoutName}
-            onChangeText={setWorkoutName}
-          />
-        </View>
+          >
+            <Text style={[styles.headerText, { fontSize: 24, marginBottom: 20 }]}>
+              Start Workout
+            </Text>
+            <TextInput
+              style={styles.titleInput}
+              placeholder="Workout Name"
+              placeholderTextColor={colors.accent}
+              value={workoutName}
+              onChangeText={setWorkoutName}
+            />
+          </View>
 
-        {exercises.map((exercise) => (
-          <RenderExerciseForm key={exercise.id} exercise={exercise} />
-        ))}
-      </ScrollView>
+          {exercises.map((exercise) => (
+            <RenderExerciseForm key={exercise.id} exercise={exercise} />
+          ))}
+
+          <View
+            style={styles.bottomButtonView}
+          >
+            <TouchableOpacity
+              style={styles.yellowButton}
+              onPress={() => setShowAddModal(true)}
+              disabled={false}
+            >
+              <Text style={styles.text}>Add Exercise from...</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.yellowButton, { flex: 1 }]}
+              onPress={addExercise}
+            >
+              <Text style={styles.text}>Add Exercise</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.exerciseForm}>
+            <Text style={styles.listSubheader}>Note</Text>
+            <TextInput
+              value={note}
+              onChangeText={setNote}
+              multiline
+              onContentSizeChange={(e) =>
+                setInputHeight(e.nativeEvent.contentSize.height)
+              }
+              style={[styles.noteInput, { height: Math.max(40, inputHeight) }]}
+              placeholder="Write a note..."
+              placeholderTextColor={colors.accent}
+            />
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
 
       <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          padding: 10,
-        }}
+        style={styles.bottomButtonView}
       >
         <TouchableOpacity
           style={[
-            styles.startButton,
-            { backgroundColor: colors.accent, flex: 1, marginRight: 5 },
+            styles.yellowButton,
+            { flex: 1 }
           ]}
           onPress={() => navigation.goBack()}
         >
@@ -389,26 +364,8 @@ export default function StartWorkout({ navigation, route }) {
 
         <TouchableOpacity
           style={[
-            styles.startButton,
-            { flex: 1, marginHorizontal: 5, backgroundColor: "#666" },
-          ]}
-          onPress={() => setShowAddModal(true)}
-          disabled={false}
-        >
-          <Text style={styles.text}>Add Exercise from...</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.startButton, { flex: 1, marginLeft: 5 }]}
-          onPress={addExercise}
-        >
-          <Text style={styles.text}>Add Exercise</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.startButton,
-            { backgroundColor: colors.accent, flex: 1, marginLeft: 5 },
+            styles.yellowButton,
+            { flex: 1 }
           ]}
           onPress={saveWorkout}
         >
@@ -529,7 +486,7 @@ export default function StartWorkout({ navigation, route }) {
             </ScrollView>
 
             <TouchableOpacity
-              style={[styles.startButton, { marginTop: 15 }]}
+              style={[styles.yellowButton, { marginTop: 15 }]}
               onPress={() => setShowAddModal(false)}
             >
               <Text style={styles.text}>Close</Text>

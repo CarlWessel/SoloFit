@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  TextInput,
-  ScrollView,
-  Alert,
-} from "react-native";
+import { View, Text, TouchableOpacity, TextInput, ScrollView, Alert, KeyboardAvoidingView, Platform } from "react-native";
 import { styles, colors, spacing } from "../styles";
 import RoutineService from "../services/RoutineService";
 import WorkoutService from "../services/WorkoutService";
@@ -17,6 +10,8 @@ export default function UseWorkout({ navigation, route }) {
   const [workoutDate, setWorkoutDate] = useState(
     new Date().toISOString().split("T")[0]
   );
+  const [note, setNote] = useState("");
+  const [inputHeight, setInputHeight] = useState(40);
 
   useEffect(() => {
     loadWorkoutExercises();
@@ -80,15 +75,14 @@ export default function UseWorkout({ navigation, route }) {
       }));
 
       await WorkoutService.addWorkout({
-        // question: do we want a name for workouthistory
-        // name: workoutName.trim(),
+        name: workoutName.trim(),
         // date: new Date().toISOString(),
 
         // toISOString() will pass it to UTC time, but we're going to change this to manually input I just ignore this problem for the moment
         startDateTime: new Date().toISOString().slice(0, 16),
         endDateTime: new Date().toISOString().slice(0, 16),
         exercises: exercisesData,
-        notes: "TODO: Add UI for notes and workout name",
+        notes: note,
       });
 
       Alert.alert("Success", "Workout saved to history!", [
@@ -102,16 +96,9 @@ export default function UseWorkout({ navigation, route }) {
 
   const RenderExercise = ({ exercise }) => (
     <View
-      style={{
-        borderWidth: 1,
-        borderColor: colors.border,
-        borderRadius: 8,
-        padding: 2,
-        margin: 10,
-        backgroundColor: colors.primary,
-      }}
+      style={styles.exerciseForm}
     >
-      <Text style={[styles.headerText, { fontSize: 18, marginBottom: 10 }]}>
+      <Text style={[styles.headerText, { fontSize: 18, marginBottom: 6 }]}>
         {exercise.exerciseName}
       </Text>
 
@@ -127,19 +114,14 @@ export default function UseWorkout({ navigation, route }) {
         return (
           <View
             key={set.id}
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginVertical: 5,
-            }}
+            style={styles.setRow}
           >
-            <Text style={[styles.headerText, { flex: 0.3, fontSize: 18 }]}>
+            <Text style={[styles.listSubheader, { flex: 0.4 }]}>
               Set {set.id}
             </Text>
 
             <TextInput
-              style={[styles.textInput, { flex: 1, marginRight: 5 }]}
+              style={styles.textInput}
               placeholder="Reps"
               placeholderTextColor={colors.accent}
               keyboardType="numeric"
@@ -151,7 +133,7 @@ export default function UseWorkout({ navigation, route }) {
             />
 
             <TextInput
-              style={[styles.textInput, { flex: 1 }]}
+              style={styles.textInput}
               placeholder="Weight"
               placeholderTextColor={colors.accent}
               keyboardType="numeric"
@@ -174,74 +156,68 @@ export default function UseWorkout({ navigation, route }) {
 
   return (
     <View style={[styles.container]}>
-      <ScrollView style={styles.container}>
-        <View
-          style={[
-            styles.header,
-            { justifyContent: "center", alignItems: "center" },
-          ]}
-        >
-          <Text style={[styles.headerText, { fontSize: 24, marginBottom: 10 }]}>
-            {workoutName}
-          </Text>
-          <Text style={[styles.text, { fontSize: 14, opacity: 0.8 }]}>
-            {isPremade ? "Premade Workout" : "My Routine"}
-          </Text>
-        </View>
-
-        <View
-          style={{
-            alignItems: "center",
-            padding: 10,
-            backgroundColor: colors.primary,
-          }}
-        >
-          <Text style={[styles.text, { marginBottom: 5 }]}>Workout Date:</Text>
-          <TextInput
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
+      >
+        <ScrollView style={styles.container}>
+          <View
             style={[
-              {
-                height: 40,
-                width: "90%",
-                borderWidth: 1,
-                borderColor: colors.border,
-                borderRadius: 4,
-                paddingHorizontal: 8,
-                color: colors.accent,
-                backgroundColor: colors.background,
-                textAlign: "center",
-              },
+              styles.header,
+              { justifyContent: "center", alignItems: "center" },
             ]}
-            placeholder="YYYY-MM-DD"
-            placeholderTextColor={colors.accent}
-            value={workoutDate}
-            onChangeText={setWorkoutDate}
-          />
-        </View>
+          >
+            <Text style={[styles.headerText, { fontSize: 24, marginBottom: spacing.sm }]}>
+              {workoutName}
+            </Text>
+            <Text style={[styles.text, { fontSize: 14, opacity: 0.8 }]}>
+              {isPremade ? "Premade Workout" : "My Routine"}
+            </Text>
+            <Text style={[styles.text, { marginVertical: 5 }]}>Workout Date:</Text>
+            <TextInput
+              style={[styles.titleInput, { textAlign: "center" }]}
+              placeholder="YYYY-MM-DD"
+              placeholderTextColor={colors.accent}
+              value={workoutDate}
+              onChangeText={setWorkoutDate}
+            />
+          </View>
 
-        {exercises.map((exercise) => (
-          <RenderExercise key={exercise.id} exercise={exercise} />
-        ))}
-      </ScrollView>
+          {exercises.map((exercise) => (
+            <RenderExercise key={exercise.id} exercise={exercise} />
+          ))}
+
+          <View style={styles.exerciseForm}>
+            <Text style={styles.listSubheader}>Note</Text>
+            <TextInput
+              value={note}
+              onChangeText={setNote}
+              multiline
+              onContentSizeChange={(e) =>
+                setInputHeight(e.nativeEvent.contentSize.height)
+              }
+              style={[styles.noteInput, { height: Math.max(40, inputHeight) }]}
+              placeholder="Write a note..."
+              placeholderTextColor={colors.accent}
+            />
+          </View>
+
+        </ScrollView>
+      </KeyboardAvoidingView>     
 
       <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          padding: 10,
-        }}
+        style={styles.bottomButtonView}
       >
         <TouchableOpacity
-          style={[
-            styles.startButton,
-            { backgroundColor: colors.accent, flex: 1, marginRight: 10 },
-          ]}
+          style={[styles.yellowButton, { flex: 1 }]}
           onPress={() => navigation.goBack()}
         >
           <Text style={styles.text}>Cancel</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.startButton, { flex: 1 }]}
+          style={[styles.yellowButton, { flex: 1 }]}
           onPress={saveWorkout}
         >
           <Text style={styles.text}>Save to History</Text>

@@ -74,11 +74,11 @@ export default function RoutineList({ navigation }) {
       ))}
 
       <View style={styles.buttonRow}>
-        <TouchableOpacity style={styles.editButton} onPress={() => editRoutine(item.id)}>
+        <TouchableOpacity style={styles.yellowButton} onPress={() => editRoutine(item.id)}>
           <Text style={styles.listText}>Edit</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.deleteButton} onPress={() => deleteRoutine(item.id)}>
+        <TouchableOpacity style={styles.redButton} onPress={() => deleteRoutine(item.id)}>
           <Text style={styles.listText}>Delete</Text>
         </TouchableOpacity>
       </View>
