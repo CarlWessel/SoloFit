@@ -2,15 +2,18 @@
 import { StyleSheet } from "react-native";
 
 export const colors = {
-  background: '#023047',
-  primary: '#219ebc',
-  accent: '#ffb703',
+  background: '#3B3B58',
+  primary: '#8D80AD',
+  accent: '#2D1B3D',
   textLight: '#fff',
   textDark: '#000',
   border: '#ddd',
   // I picked these two color, could be changed 
-  delete: '#ff0000',
-  cardBackground: '#005d8bff'
+  delete: '#7d3a3aff',
+  cardBackground: '#2D1B3D',
+  lighter: '#a186c1ff',
+  button: '#8D80AD'
+
 };
 
 export const spacing = {
@@ -140,7 +143,7 @@ export const styles = StyleSheet.create({
         borderRadius: 4,
         marginHorizontal: 5,
         paddingHorizontal: 8,
-        color: colors.accent,
+        color: colors.textLight,
         backgroundColor: colors.background,
     },
     modalOverlay: {

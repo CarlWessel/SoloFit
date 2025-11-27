@@ -295,7 +295,7 @@ export default function StartWorkout({ navigation, route }) {
                 { flex: 1, marginRight: 5, paddingLeft: 7 },
               ]}
               placeholder="Reps"
-              placeholderTextColor={colors.accent}
+              placeholderTextColor={colors.textLight}
               value={localReps}
               onChangeText={setLocalReps}
               onEndEditing={(e) =>

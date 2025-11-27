@@ -141,7 +141,7 @@ export default function UseWorkout({ navigation, route }) {
             <TextInput
               style={[styles.textInput, { flex: 1, marginRight: 5 }]}
               placeholder="Reps"
-              placeholderTextColor={colors.accent}
+              placeholderTextColor={colors.textLight}
               keyboardType="numeric"
               value={localReps}
               onChangeText={setLocalReps}
@@ -153,7 +153,7 @@ export default function UseWorkout({ navigation, route }) {
             <TextInput
               style={[styles.textInput, { flex: 1 }]}
               placeholder="Weight"
-              placeholderTextColor={colors.accent}
+              placeholderTextColor={colors.textLight}
               keyboardType="numeric"
               value={localWeight}
               onChangeText={setLocalWeight}
@@ -203,16 +203,16 @@ export default function UseWorkout({ navigation, route }) {
                 height: 40,
                 width: "90%",
                 borderWidth: 1,
-                borderColor: colors.border,
+                borderColor: colors.textLight,
                 borderRadius: 4,
                 paddingHorizontal: 8,
-                color: colors.accent,
+                color: colors.textLight,
                 backgroundColor: colors.background,
                 textAlign: "center",
               },
             ]}
             placeholder="YYYY-MM-DD"
-            placeholderTextColor={colors.accent}
+            placeholderTextColor={colors.textLight}
             value={workoutDate}
             onChangeText={setWorkoutDate}
           />

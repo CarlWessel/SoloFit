@@ -152,7 +152,7 @@ export default function AddRoutine({ navigation }) {
       <View
         style={{
           borderWidth: 1,
-          borderColor: colors.border,
+          borderColor: colors.lighter,
           borderRadius: 8,
           padding: 6,
           margin: 10,
@@ -163,7 +163,7 @@ export default function AddRoutine({ navigation }) {
           style={{
             flex: 1,
             borderWidth: 1,
-            borderColor: colors.border,
+            borderColor: colors.lighter,
             borderRadius: 1,
             backgroundColor: colors.background,
             height: 40,
@@ -173,8 +173,8 @@ export default function AddRoutine({ navigation }) {
           <Picker
             selectedValue={exercise.exerciseId}
             onValueChange={(value) => onExerciseChanged(exercise.id, value)}
-            style={{ fontSize: 16, color: colors.accent, width: "100%" }}
-            dropdownIconColor={colors.accent}
+            style={{ fontSize: 16, color: colors.textLight, width: "100%" }}
+            dropdownIconColor={colors.textLight}
           >
             {exercisesList.map((ex) => (
               <Picker.Item key={ex.value} label={ex.label} value={ex.value} />
@@ -186,7 +186,7 @@ export default function AddRoutine({ navigation }) {
         style={{
           alignItems: "center",
           borderWidth: 1,
-          borderColor: colors.border,
+          borderColor: colors.lighter,
           borderRadius: 8,
           padding: 10,
           margin: 10,
@@ -258,7 +258,7 @@ export default function AddRoutine({ navigation }) {
                 { flex: 1, marginRight: 5, paddingLeft: 7 },
               ]}
               placeholder="Reps"
-              placeholderTextColor={colors.accent}
+              placeholderTextColor={colors.textLight}
               value={localReps}
               onChangeText={setLocalReps}
               onEndEditing={(e) =>
@@ -269,7 +269,7 @@ export default function AddRoutine({ navigation }) {
             <TextInput
               style={[styles.textInput, { flex: 1 }]}
               placeholder="Weight"
-              placeholderTextColor={colors.accent}
+              placeholderTextColor={colors.textLight}
               value={localWeight}
               onChangeText={setLocalWeight}
               onEndEditing={(e) =>
@@ -316,15 +316,15 @@ export default function AddRoutine({ navigation }) {
                 height: 40,
                 width: "90%",
                 borderWidth: 1,
-                borderColor: colors.border,
+                borderColor: colors.lighter,
                 borderRadius: 4,
                 paddingHorizontal: 8,
-                color: colors.accent,
+                color: colors.textLight,
                 backgroundColor: colors.background,
               },
             ]}
             placeholder="Routine Name"
-            placeholderTextColor={colors.accent}
+            placeholderTextColor={colors.textLight}
             value={routineName}
             onChangeText={setRoutineName}
           />

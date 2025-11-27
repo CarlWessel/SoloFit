@@ -52,7 +52,7 @@ export default function PremadeRoutines({ navigation }) {
       ))}
 
       <View style={{ marginTop: 10, alignItems: 'flex-end' }}>
-        <Text style={[styles.text, { color: '#4CAF50', fontSize: 14 }]}>
+        <Text style={[styles.text, { color: '#8D80AD', fontSize: 14 }]}>
           Tap to start →
         </Text>
       </View>
