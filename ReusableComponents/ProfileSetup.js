@@ -45,7 +45,7 @@ export default function ProfileModal({ visible, onClose }) {
     <Modal visible={visible} animationType="slide" transparent={true}>
       <View style={styles.overlay}>
         <View style={styles.box}>
-          <Text style={styles.header}>Edit Profile</Text>
+          <Text style={styles.header}>Profile</Text>
 
           <Text style={styles.label}>Name</Text>
           <TextInput style={styles.input} value={name} onChangeText={setName} />

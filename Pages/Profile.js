@@ -6,6 +6,7 @@ import ExerciseService from "../services/ExerciseService";
 import { MaterialIcons } from '@expo/vector-icons';
 import UserService from "../services/UserService";
 import ProfileModal from "../ReusableComponents/ProfileSetup";
+import ExerciseModal from "../ReusableComponents/ExercisesModal";
 
 export default function Profile({ navigation }) {
 
@@ -70,29 +71,6 @@ export default function Profile({ navigation }) {
     setModalVisible(true);
   };
 
-  const saveExercise = async () => {
-    if (!exerciseName.trim()) {
-      Alert.alert("Error", "Exercise name cannot be empty.");
-      return;
-    }
-
-    try {
-      if (isEditing && selectedExercise) {
-        await ExerciseService.editExercise(selectedExercise, exerciseName.trim());
-        Alert.alert("Success", "Exercise updated!");
-      } else {
-        await ExerciseService.addExercise(exerciseName.trim());
-        Alert.alert("Success", "Exercise added!");
-      }
-
-      // Refresh exercise list
-      await loadExercises();
-      setModalVisible(false);
-    } catch (error) {
-      console.error(error);
-      Alert.alert("Error", "Failed to save exercise.");
-    }
-  };
 
   return (
     <View style={styles.container}>
@@ -124,12 +102,12 @@ export default function Profile({ navigation }) {
 
       <View style={styles.main}>
         {/* Exercise Controls*/}
-        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 10, width: '80%', marginTop: 30 }}>
-          <TouchableOpacity style={styles.editButton} onPress={() => setModalVisible(true)}>
+        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 10, width: '80%', marginTop: 20 }}>
+          <TouchableOpacity style={styles.editButton} onPress={handleAddExercise}>
             <Text style={styles.text}>Add Exercise</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.deleteButton} onPress={() => setModalVisible(true)}>
+          <TouchableOpacity style={styles.deleteButton} onPress={handleEditExercise}>
             <Text style={styles.text}>Edit Exercise</Text>
           </TouchableOpacity>
         </View>
@@ -149,46 +127,17 @@ export default function Profile({ navigation }) {
         }}
       />
 
-      <Modal visible={modalVisible} transparent={true}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>{isEditing ? "Edit Exercise" : "Add New Exercise"}</Text>
-
-            {/* Picker only when editing */}
-            {isEditing && (
-              <Picker
-                selectedValue={selectedExercise}
-                onValueChange={(itemValue) => setSelectedExercise(itemValue)}
-                style={{ width: '100%', marginBottom: 10 }}
-              >
-                {exerciseList.map((ex) => (
-                  <Picker.Item key={ex.id} label={ex.name} value={ex.id} />
-                ))}
-              </Picker>
-            )}
-
-            {/* TextInput for new name */}
-            <TextInput
-              placeholder="Exercise name"
-              placeholderTextColor="#999"
-              style={styles.modalTextInput}
-              value={exerciseName}
-              onChangeText={setExerciseName}
-            />
-
-            {/* Save / Cancel buttons */}
-            <View style={styles.modalButtonRow}>
-              <TouchableOpacity style={styles.editButton} onPress={saveExercise}>
-                <Text style={styles.text}>Save</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.deleteButton} onPress={() => setModalVisible(false)}>
-                <Text style={styles.text}>Cancel</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
+      <ExerciseModal
+        visible={modalVisible}
+        isEditing={isEditing}
+        exerciseName={exerciseName}
+        setExerciseName={setExerciseName}
+        exerciseList={exerciseList}
+        selectedExercise={selectedExercise}
+        setSelectedExercise={setSelectedExercise}
+        onClose={() => setModalVisible(false)}
+        reloadExercises={loadExercises}
+      />
     </View>
   );
 }
