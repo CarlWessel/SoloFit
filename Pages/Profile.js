@@ -334,6 +334,10 @@ export default function Profile({ navigation }) {
 
       <View style={styles.main}>
         {/* Exercise Controls*/}
+        <View style={{ width: "100%", alignItems: "flex-start", paddingLeft: 20, paddingTop: 20 }}>
+          <Text style={styles.listHeader}>Exercises</Text>
+        </View>
+
         <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 10, width: '80%', marginTop: 20 }}>
           <TouchableOpacity style={styles.yellowButton} onPress={handleAddExercise}>
             <Text style={styles.text}>Add Exercise</Text>
@@ -343,10 +347,6 @@ export default function Profile({ navigation }) {
             <Text style={styles.text}>Edit Exercise</Text>
           </TouchableOpacity>
         </View>
-
-
-        <Text style={[styles.listHeader, { marginTop: 30 }]}>Personal Records!</Text>
-        {/* Will make a personal records section when I create the table for it */}
       </View>
 
       {/* Modals */}
@@ -602,10 +602,6 @@ export default function Profile({ navigation }) {
           )}
         </View>
 
-        {/* Personal Records Section (Placeholder) */}
-        <Text style={[styles.listHeader, { marginTop: 40 }]}>
-          🏆 Personal Records
-        </Text>
         <View
           style={{
             backgroundColor: "#333742",
