@@ -115,12 +115,6 @@ export default function WorkoutHistory({ navigation }) {
         {/* Edit/Delete buttons (only within 14 days) */}
         {(today - new Date(item.endDateTime) <= 14 * 24 * 60 * 60 * 1000) && (
           <View style={styles.buttonRow}>
-            <TouchableOpacity
-              style={styles.yellowButton}
-              onPress={() => editWorkout(item.id)}
-            >
-              <Text style={styles.listText}>Edit</Text>
-            </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.redButton}
