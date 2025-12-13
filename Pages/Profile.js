@@ -302,7 +302,7 @@ export default function Profile({ navigation }) {
 
   const screenWidth = Dimensions.get("window").width;
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 100 }}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
@@ -600,22 +600,6 @@ export default function Profile({ navigation }) {
               )}
             </>
           )}
-        </View>
-
-        <View
-          style={{
-            backgroundColor: "#333742",
-            padding: 20,
-            borderRadius: 10,
-            marginTop: 10,
-            width: "90%",
-            alignItems: "center",
-            marginBottom: 30,
-          }}
-        >
-          <Text style={[styles.text, { opacity: 0.7 }]}>
-            Coming soon: Track your all-time bests!
-          </Text>
         </View>
       </View>
     </ScrollView>
