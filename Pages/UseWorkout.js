@@ -75,24 +75,29 @@ export default function UseWorkout({ navigation, route }) {
           })),
       }));
 
-      // Parse date in LOCAL timezone
-      // Split the date string and create date with local timezone
-      const [year, month, day] = workoutDate.split('-').map(Number);
-      const workoutDateTime = new Date(year, month - 1, day); // month is 0-indexed
-      
-      // If the date is invalid, show error
+      // Keep current system time if workout is done today
+      // Set to midnight local time if on a different day
+      const todayString = new Date().toISOString().split("T")[0];
+      const isToday = workoutDate === todayString;
+
+      let workoutDateTime;
+
+      if (isToday) {
+        workoutDateTime = new Date(); // keep current time
+      } else {
+        const [year, month, day] = workoutDate.split("-").map(Number);
+        workoutDateTime = new Date(year, month - 1, day); // midnight local
+      }
+
       if (isNaN(workoutDateTime.getTime())) {
         Alert.alert("Error", "Please enter a valid date in YYYY-MM-DD format");
         return;
       }
-      
-      const startDateTime = new Date().toISOString();
-      const endDateTime = new Date().toISOString();
 
       await WorkoutService.addWorkout({
         name: workoutName.trim(),
-        startDateTime: startDateTime,
-        endDateTime: endDateTime,
+        startDateTime: workoutDateTime.toISOString(),
+        endDateTime: workoutDateTime.toISOString(),
         exercises: exercisesData,
         notes: note,
       });

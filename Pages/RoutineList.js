@@ -27,14 +27,6 @@ export default function RoutineList({ navigation }) {
     }
   };
 
-  const editRoutine = (id) => {
-    console.log(`Edit routine with id: ${id}`);
-    navigation.navigate('AddRoutine');
-    // navigation.navigate('EditRoutine', { routineId: id });
-    // the page should be almost the same as add routine, consider combine those two into EditRoutine 
-    // and add a boolean to determine if it's add or edit
-  };
-
   const deleteRoutine = async (id) => {
     Alert.alert(
       'Delete Routine',
@@ -74,9 +66,6 @@ export default function RoutineList({ navigation }) {
       ))}
 
       <View style={styles.buttonRow}>
-        <TouchableOpacity style={styles.yellowButton} onPress={() => editRoutine(item.id)}>
-          <Text style={styles.listText}>Edit</Text>
-        </TouchableOpacity>
 
         <TouchableOpacity style={styles.redButton} onPress={() => deleteRoutine(item.id)}>
           <Text style={styles.listText}>Delete</Text>
